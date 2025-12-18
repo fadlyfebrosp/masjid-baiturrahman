@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <p align="center">
   <img src="public/assets/img/logo2.png" alt="Masjid Baiturrahman" width="200px">
 </p>

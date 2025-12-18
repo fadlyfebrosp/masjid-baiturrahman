@@ -9,9 +9,11 @@ use App\Models\Program;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Traits\LogActivity;
 
 class ProgramController extends Controller
 {
+    use LogActivity;
     private function normalizeDate($value)
     {
         if (! $value) {
@@ -59,6 +61,7 @@ class ProgramController extends Controller
     // LIST PROGRAM
     public function index(Request $request)
     {
+        $this->logActivity($request, 'Melihat daftar program');
         $search = $request->search;
 
         // Ambil request range tanggal
@@ -87,27 +90,33 @@ class ProgramController extends Controller
     }
 
     // HALAMAN CREATE
-    public function create()
+    public function create(Request $request)
     {
+        $this->logActivity($request, 'Membuka form tambah program');
         $kategori = EnumHelper::getEnumValues('programs', 'kategori');
         $mode = 'create';
 
         return view('admin.program.form', compact('kategori', 'mode'));
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
+        $this->logActivity($request, 'Melihat detail program', [
+            'program_id' => $id
+        ]);
+
         $program = Program::findOrFail($id);
 
         return view('admin.program.form', [
             'program' => $program,
-            'mode' => 'show'
+            'mode'    => 'show'
         ]);
     }
 
     // SIMPAN PROGRAM
     public function store(Request $request)
     {
+        $this->logActivity($request, 'Menyimpan program baru');
         // Validasi dasar (tanpa closure untuk tanggal)
         $request->validate([
             'kategori'      => 'required|string',
@@ -155,6 +164,9 @@ class ProgramController extends Controller
             'min_donasi'     => $request->min_donasi ?? 0,
             'custom_nominal' => $request->custom_nominal ?? []
         ]);
+        $this->logActivity($request, 'Program berhasil dibuat', [
+            'program_id' => $program->id
+        ]);
 
         return redirect()
             ->route('admin.program.show', $program->id)
@@ -162,8 +174,11 @@ class ProgramController extends Controller
     }
 
     // HALAMAN EDIT
-    public function edit(Program $program)
+    public function edit(Request $request, Program $program)
     {
+         $this->logActivity($request, 'Membuka form edit program', [
+            'program_id' => $program->id
+        ]);
         $kategori = EnumHelper::getEnumValues('programs', 'kategori');
 
         $program->foto_url = $program->foto ? asset('storage/'.$program->foto) : null;
@@ -176,6 +191,9 @@ class ProgramController extends Controller
     // UPDATE PROGRAM
     public function update(Request $request, Program $program)
     {
+        $this->logActivity($request, 'Update program', [
+            'program_id' => $program->id
+        ]);
         // Validasi dasar
         $request->validate([
             'kategori'      => 'required|string',
@@ -234,6 +252,9 @@ class ProgramController extends Controller
     // DELETE PROGRAM
     public function destroy(Program $program)
     {
+        $this->logActivity(request(), 'Menghapus program', [
+            'program_id' => $program->id
+        ]);
         if ($program->foto && Storage::disk('public')->exists($program->foto)) {
             Storage::disk('public')->delete($program->foto);
         }
@@ -244,6 +265,9 @@ class ProgramController extends Controller
     }
    public function byKategori($kategori)
     {
+        $this->logActivity(request(), 'Melihat program berdasarkan kategori', [
+            'kategori' => $kategori
+        ]);
         // Normalisasi kategori (zakat → zakat)
         $kategoriNormalized = strtolower($kategori);
 
@@ -304,12 +328,5 @@ class ProgramController extends Controller
             'jumlahDonasi'  => $item->jumlahDonasi,
             'sisaHari'      => $sisaHari,
         ]);
-    }
-
-    public function donateNow($id)
-    {
-        $program = Program::findOrFail($id);
-
-        return view('program.donateya', compact('program'));
     }
 }

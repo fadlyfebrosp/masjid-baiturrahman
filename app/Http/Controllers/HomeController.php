@@ -9,22 +9,23 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Models\User;
 use App\Models\KontakInformasi;
-
+use App\Traits\LogActivity;
 
 class HomeController extends Controller
 {
+    use LogActivity;
     /* ===============================
      | HOMEPAGE
      =============================== */
-    public function index()
+    public function index(Request $request)
     {
+        $this->logActivity($request, 'Akses Homepage');
+
         $berita   = Beritadankegiatan::latest()->take(6)->get();
         $programs = Program::latest()->get();
 
-        // ✅ Ambil data kontak (1 baris saja)
         $kontak = KontakInformasi::first();
 
-        // ✅ Siapkan logo aman (fallback kalau null)
         $logo = $kontak && $kontak->logo
             ? asset('storage/' . $kontak->logo)
             : asset('assets/img/logo1.png');
@@ -39,8 +40,10 @@ class HomeController extends Controller
     /* ===============================
      | SHOW PROFILE (READ ONLY)
      =============================== */
-    public function profile()
+    public function profile(Request $request)
     {
+        $this->logActivity($request, 'Lihat Profil');
+
         return view('pages.profile.show', [
             'user' => Auth::user(),
         ]);
@@ -49,18 +52,23 @@ class HomeController extends Controller
     /* ===============================
      | EDIT PROFILE
      =============================== */
-    public function editProfile()
+    public function editProfile(Request $request)
     {
+        $this->logActivity($request, 'Buka Form Edit Profil');
+
         return view('pages.profile.edit', [
             'user' => Auth::user(),
         ]);
     }
+
 
     /* ===============================
      | UPDATE PROFILE
      =============================== */
     public function updateProfile(Request $request)
     {
+        $this->logActivity($request, 'Update Profil');
+
         /** @var User $user */
         $user = Auth::user();
 

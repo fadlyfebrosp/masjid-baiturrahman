@@ -10,6 +10,7 @@ use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\BeritadankegiatanController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DonasiController;
+use App\Http\Controllers\KasController;
 use App\Http\Controllers\KontakInformasiController;
 use App\Http\Controllers\PemasukkanController;
 use App\Http\Controllers\PengeluaranController;
@@ -206,13 +207,13 @@ Route::prefix('finance')
     ->name('finance.')
     ->middleware([App\Http\Middleware\CheckRole::class . ':finance'])
     ->group(function () {
-
+        // ================= Dashboard =================
         Route::get('/dashboard', [FinanceController::class, 'index'])
             ->name('dashboard');
-
-        Route::get('/transaction', [FinanceController::class, 'transaction'])
+        // ================= Transaction =================
+        Route::get('/transaction/{kategori?}', [FinanceController::class, 'transaction'])
             ->name('transaction');
-
+        // ================= MASTER DATA =================
         Route::get('/pemasukkan', [PemasukkanController::class, 'index'])
             ->name('pemasukkan.index');
 
@@ -236,12 +237,25 @@ Route::prefix('finance')
 
         Route::delete('/pengeluaran/{id}', [PengeluaranController::class, 'destroy'])
             ->name('pengeluaran.destroy');
+        // ================= Laporan =================
+        Route::get('/laporangabungan/laporan', [PemasukkanController::class, 'laporanGabungan'])
+            ->name('laporan.laporankeuangan');
+
+        Route::get('/laporangabungan/laporan/pdf', [PemasukkanController::class, 'exportPdfGabungan'])
+            ->name('laporan.laporankeuangan.pdf');
+        Route::get('/laporangabungan/laporan/excel', [PemasukkanController::class, 'exportExcelGabungan'])
+            ->name('finance.laporan.laporankeuangan.excel');
 
         Route::get('/pemasukkan/laporan', [PemasukkanController::class, 'laporan'])
-            ->name('pemasukkan.laporan');
+            ->name('laporan.pemasukkan');
+
+        Route::get('/pemasukkan/laporan/pdf', [PemasukkanController::class, 'exportPdf'])
+            ->name('laporan.pemasukkan.pdf');
 
         Route::get('/pengeluaran/laporan', [PengeluaranController::class, 'laporan'])
-            ->name('pengeluaran.laporan');
+            ->name('laporan.pengeluaran');
+        Route::get('/pengeluaran/laporan/pdf', [PengeluaranController::class, 'exportPdf'])
+            ->name('laporan.pengeluaran.pdf');
     });
 /*
 |--------------------------------------------------------------------------

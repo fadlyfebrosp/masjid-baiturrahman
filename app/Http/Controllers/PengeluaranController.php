@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Pengeluaran;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 class PengeluaranController extends Controller
 {
@@ -75,9 +77,42 @@ class PengeluaranController extends Controller
         }
 
         $data = $query->orderBy('tanggal', 'asc')->get();
-
         $total = $data->sum('jumlah_dana');
 
-        return view('finance.laporanpengeluaran', compact('data', 'total'));
+        return view('finance.laporan.pengeluaran', compact('data', 'total'));
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $query = Pengeluaran::query();
+        $isRange = false;
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('tanggal', [
+                $request->start_date,
+                $request->end_date
+            ]);
+            $isRange = true;
+        }
+
+        $data = $query->orderBy('tanggal', 'asc')->get();
+        $total = $data->sum('jumlah_dana');
+
+        $periode = $isRange
+            ? $request->start_date . ' s/d ' . $request->end_date
+            : 'Semua Data';
+
+        $namaFile = $isRange
+            ? 'laporan-pengeluaran-range.pdf'
+            : 'laporan-pengeluaran-semua.pdf';
+
+        $pdf = Pdf::loadView('finance.pdf.laporan_pengeluaran', [
+            'data' => $data,
+            'total' => $total,
+            'periode' => $periode,
+            'tanggalCetak' => Carbon::now()->format('d M Y')
+        ])->setPaper('A4', 'portrait');
+
+        return $pdf->download($namaFile);
     }
 }
