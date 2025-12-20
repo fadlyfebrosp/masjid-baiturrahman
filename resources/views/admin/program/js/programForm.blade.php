@@ -5,6 +5,7 @@ function programForm() {
     form: {
       nama_produk: '',
       kategori: '',
+      sub_kategori: '',
       min_donasi: 0,
       custom_nominal: ['10000','20000','50000','100000'],
       target_dana: '',
@@ -18,6 +19,16 @@ function programForm() {
     defaultImage: '{{ asset("assets/img/Image-not-found.png") }}',
     shortDescription: '',
     hasLongDescription: false,
+    subKategoriLabel(value) {
+        const map = {
+            fitrah: 'Zakat Fitrah',
+            mal: 'Zakat Penghasilan / Mal',
+            emas: 'Zakat Emas',
+            pertanian: 'Zakat Pertanian',
+            peternakan: 'Zakat Peternakan',
+        };
+        return map[value] ?? value;
+    },
 
     /* ===============================
        INIT
@@ -45,6 +56,7 @@ function programForm() {
     loadData(program) {
       this.form.nama_produk = program.judul ?? '';
       this.form.kategori = program.kategori ?? '';
+      this.form.sub_kategori = program.sub_kategori ?? '';
       this.form.min_donasi = program.min_donasi ?? 0;
       this.form.custom_nominal = program.custom_nominal ?? this.form.custom_nominal;
       this.form.target_dana = program.target_dana ?? '';

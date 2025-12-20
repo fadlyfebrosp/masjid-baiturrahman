@@ -3,7 +3,7 @@
 
     <!-- Bagian Kiri: Logo + Deskripsi -->
     <div>
-      <img src="{{ asset('assets/img/logo2.png') }}" alt="Logo Masjid" class="h-16 mb-4">
+      <img src="{{ $logo }}" class="w-20 h-14 object-contain" alt="Logo">
       <p class="text-gray-700 text-sm leading-relaxed">
         Masjid Baiturrahman merupakan rumah ibadah yang berperan aktif dalam dakwah, pendidikan, dan kegiatan sosial.
         Kami berkomitmen membangun masyarakat yang beriman, berilmu, dan berakhlak mulia melalui program masjid yang berkelanjutan.

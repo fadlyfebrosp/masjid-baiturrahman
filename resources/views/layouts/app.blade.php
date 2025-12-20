@@ -62,7 +62,7 @@
 
   @include('layouts.navbar')
 
-    <main class="relative pt-20 pb-20">
+    <main class="pt-20 pb-20">
         @yield('content')
     </main>
 

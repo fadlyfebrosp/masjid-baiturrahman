@@ -27,7 +27,6 @@
 
     </div>
 </div>
-
 @if(session('success'))
   <div id="flashMessage" class="bg-green-100 text-green-700 p-4 rounded-lg mb-4">
     {{ session('success') }}
@@ -80,9 +79,7 @@
 
                 <!-- ROLE -->
                 <td class="py-4 px-4">
-                    <span class="px-3 py-1 text-xs rounded-full bg-blue-100 text-blue-700">
-                        {{ $acc->role ?? '-' }}
-                    </span>
+                    <x-role-badge :role="$acc->role" />
                 </td>
 
                 <!-- AKSI -->

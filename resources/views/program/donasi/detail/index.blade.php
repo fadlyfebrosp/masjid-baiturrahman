@@ -108,6 +108,11 @@
         <h1 class="text-xl font-bold leading-snug">
             {{ $item->judul }}
         </h1>
+        @if($item->sub_kategori)
+            <p class="text-sm text-green-700 font-medium">
+                {{ $item->sub_kategori_label }}
+            </p>
+        @endif
 
         <!-- TERKUMPUL / TARGET -->
         <div class="text-sm text-gray-700">

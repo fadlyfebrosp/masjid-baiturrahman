@@ -1,10 +1,38 @@
+<style>
+.scroll-animate {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.from-top {
+    transform: translateY(-40px);
+}
+
+.from-bottom {
+    transform: translateY(40px);
+}
+
+.scroll-animate.active {
+    opacity: 1;
+    transform: translate(0, 0);
+}
+
+/* Delay animasi */
+.delay-0 { transition-delay: 0s; }
+.delay-1 { transition-delay: .1s; }
+.delay-2 { transition-delay: .2s; }
+.delay-3 { transition-delay: .3s; }
+.delay-4 { transition-delay: .4s; }
+.delay-5 { transition-delay: .5s; }
+</style>
 <section class="py-16 bg-white text-center">
   <div class="max-w-6xl mx-auto px-3">
 
     <!-- ===================== -->
     <!--        JUDUL          -->
     <!-- ===================== -->
-    <div class="text-center mb-8">
+    <div class="text-center mb-8 scroll-animate from-top">
       <h2 class="text-3xl font-bold">Program Masjid</h2>
       <p class="text-gray-600">Program Zakat, Infak, Sedekah dan Wakaf</p>
     </div>
@@ -13,25 +41,24 @@
     <!--   FILTER KATEGORI     -->
     <!-- ===================== -->
     <div class="flex flex-wrap justify-center gap-3 mb-10">
-
       @php
         $kategoriList = ["Semua", "Zakat", "Infak", "Sedekah", "Wakaf"];
       @endphp
 
       @foreach ($kategoriList as $kategori)
         <button
-          class="filter-program px-4 py-2 rounded-full border border-gray-300 text-gray-700 text-sm font-medium"
+          class="filter-program px-4 py-2 rounded-full border border-gray-300 text-gray-700 text-sm font-medium
+                 scroll-animate from-bottom delay-{{ $loop->index }}"
           data-filter="{{ $kategori }}">
           {{ $kategori }}
         </button>
       @endforeach
-
     </div>
 
     <!-- ===================== -->
     <!--       CAROUSEL        -->
     <!-- ===================== -->
-    <div class="relative">
+    <div class="relative scroll-animate from-bottom">
 
       <!-- Tombol kiri -->
       <button id="scrollProgramLeft"
@@ -50,23 +77,26 @@
             $target = $item->target_dana ?? 1;
             $persen = min(100, ($terkumpul / $target) * 100);
 
-            // Hitung sisa hari
             if ($item->open_goals) {
                 $sisaHari = "Tanpa Batas Waktu";
             } else {
                 if ($item->target_waktu) {
-                    $sisa = now()->startOfDay()->diffInDays(\Carbon\Carbon::parse($item->target_waktu)->startOfDay(), false);
+                    $sisa = now()->startOfDay()->diffInDays(
+                        \Carbon\Carbon::parse($item->target_waktu)->startOfDay(),
+                        false
+                    );
                     $sisaHari = $sisa > 0 ? ceil($sisa) . " hari lagi" : "Berakhir";
                 } else {
                     $sisaHari = "Belum diatur";
                 }
             }
-
           @endphp
 
-          <div class="program-card snap-center flex-shrink-0
-            w-[104%] sm:w-[49%] lg:w-[33%]
-            bg-white border border-green-400 rounded-2xl shadow hover:shadow-md transition overflow-hidden"
+          <div
+            class="program-card snap-center flex-shrink-0
+                   w-[104%] sm:w-[49%] lg:w-[33%]
+                   bg-white border border-green-400 rounded-2xl shadow hover:shadow-md transition overflow-hidden
+                   scroll-animate from-bottom delay-{{ $loop->index }}"
             data-category="{{ $item->kategori }}">
 
             <!-- FOTO -->
@@ -74,61 +104,56 @@
               <img
                 src="{{ $item->foto ? asset('storage/' . $item->foto) : asset('build/assets/masjid.jpeg') }}"
                 alt="{{ $item->judul }}"
-                class="w-full h-52 object-cover object-center transition-transform duration-500 group-hover:scale-105">
+                class="w-full h-52 object-cover transition-transform duration-500 group-hover:scale-105">
 
               <span
-                class="absolute top-2 left-2 bg-green-600 text-white text-xs px-3 py-1 rounded-md uppercase tracking-wide">
+                class="absolute top-2 left-2 bg-green-600 text-white text-xs px-3 py-1 rounded-md uppercase">
                 {{ $item->kategori }}
               </span>
             </div>
 
-            <!-- KONTEN BARU (DESAIN DONASI) -->
+            <!-- KONTEN -->
             <div class="p-6 space-y-4 text-left">
-
-              <!-- JUDUL -->
               <h1 class="text-xl font-bold text-gray-900">
-                  {{ $item->judul }}
+                {{ $item->judul }}
               </h1>
+              @if ($item->kategori === 'Zakat' && $item->sub_kategori)
+                    <p class="text-sm font-medium text-green-700">
+                        {{ $item->sub_kategori_label }}
+                    </p>
+                @endif
 
-              <!-- TOTAL & TARGET -->
-              <div class="text-gray-700 text-base">
-                  <span class="font-semibold text-black">
-                    Rp {{ number_format($terkumpul, 0, ',', '.') }}
-                  </span>
-                  <span> terkumpul dari </span>
-                  <span class="font-bold">
-                    Rp {{ number_format($target, 0, ',', '.') }}
-                  </span>
+              <div class="text-gray-700">
+                <span class="font-semibold text-black">
+                  Rp {{ number_format($terkumpul, 0, ',', '.') }}
+                </span>
+                dari
+                <span class="font-bold">
+                  Rp {{ number_format($target, 0, ',', '.') }}
+                </span>
               </div>
 
-              <!-- PROGRESS BAR -->
               <div class="w-full bg-gray-200 rounded-full h-2">
-                  <div class="bg-green-600 h-2 rounded-full"
-                       style="width: {{ $persen }}%">
-                  </div>
+                <div class="bg-green-600 h-2 rounded-full"
+                     style="width: {{ $persen }}%"></div>
               </div>
 
-              <!-- SISA WAKTU + JUMLAH DONASI -->
-              <div class="flex justify-between text-gray-600 text-sm w-full">
-                  <span>{{ $item->jumlah_donasi ?? 0 }} Donasi</span>
-
-                  <div class="flex flex-col items-end leading-tight">
-                      <span class="font-medium text-gray-700">Sisa Waktu:</span>
-                      <span class="text-gray-500">{{ $sisaHari }}</span>
-                  </div>
+              <div class="flex justify-between text-sm text-gray-600">
+                <span>{{ $item->jumlah_donasi ?? 0 }} Donasi</span>
+                <div class="text-right">
+                  <div class="font-medium text-gray-700">Sisa Waktu</div>
+                  <div class="text-gray-500">{{ $sisaHari }}</div>
+                </div>
               </div>
 
-              <!-- BUTTON DONASI -->
               <a href="{{ route('program.detail', [
                     'kategori' => strtolower($item->kategori),
-                    'slug'     => $item->slug
+                    'slug' => $item->slug
                 ]) }}"
-                class="block w-full bg-green-600 text-white text-center py-3 rounded-lg font-semibold hover:bg-green-700">
+                 class="block w-full bg-green-600 text-white text-center py-3 rounded-lg font-semibold hover:bg-green-700">
                 Infaq Sekarang!
               </a>
-
             </div>
-
           </div>
 
         @empty
@@ -146,44 +171,56 @@
     </div>
   </div>
 </section>
-
-<!-- ===================== -->
-<!--       JAVASCRIPT      -->
-<!-- ===================== -->
 <script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  /* =========================
+     SCROLL ANIMATION
+  ========================= */
+  const animatedItems = document.querySelectorAll(".scroll-animate");
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("active");
+      } else {
+        entry.target.classList.remove("active");
+      }
+    });
+  }, { threshold: 0.2 });
+
+  animatedItems.forEach(el => observer.observe(el));
+
+  /* =========================
+     CAROUSEL
+  ========================= */
   const pCarousel = document.getElementById("programCarousel");
+
+  document.getElementById("scrollProgramLeft").onclick = () =>
+    pCarousel.scrollBy({ left: -320, behavior: "smooth" });
+
+  document.getElementById("scrollProgramRight").onclick = () =>
+    pCarousel.scrollBy({ left: 320, behavior: "smooth" });
+
+  /* =========================
+     FILTER PROGRAM
+  ========================= */
   const pButtons = document.querySelectorAll(".filter-program");
   const programCards = document.querySelectorAll(".program-card");
 
-  // Scroll kiri & kanan
-  document.getElementById("scrollProgramLeft").addEventListener("click", () => {
-    pCarousel.scrollBy({ left: -300, behavior: "smooth" });
-  });
-
-  document.getElementById("scrollProgramRight").addEventListener("click", () => {
-    pCarousel.scrollBy({ left: 300, behavior: "smooth" });
-  });
-
-  // Default: tombol "Semua"
   pButtons[0].classList.add("bg-green-600", "text-white", "border-green-600");
-  pButtons[0].classList.remove("border-gray-300", "text-gray-700");
 
-  // Filter program
   pButtons.forEach(btn => {
     btn.addEventListener("click", () => {
       const filter = btn.dataset.filter;
 
-      // Reset tampilan tombol
       pButtons.forEach(b => {
         b.classList.remove("bg-green-600", "text-white", "border-green-600");
         b.classList.add("border-gray-300", "text-gray-700");
       });
 
-      // Aktifkan tombol dipilih
       btn.classList.add("bg-green-600", "text-white", "border-green-600");
-      btn.classList.remove("border-gray-300", "text-gray-700");
 
-      // Filter kartu
       programCards.forEach(card => {
         card.classList.toggle("hidden",
           !(filter === "Semua" || card.dataset.category === filter)
@@ -191,4 +228,6 @@
       });
     });
   });
+
+});
 </script>

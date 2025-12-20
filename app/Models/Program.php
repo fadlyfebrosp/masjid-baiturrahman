@@ -14,6 +14,7 @@ class Program extends Model
 
     protected $fillable = [
         'kategori',
+        'sub_kategori',
         'judul',
         'slug',
         'min_donasi',
@@ -63,5 +64,33 @@ class Program extends Model
         $count = Program::where('slug', 'LIKE', "$base%")->count();
 
         return $count ? "{$base}-{$count}" : $base;
+    }
+    public function getSisaHariAttribute()
+    {
+        if ($this->open_goals || !$this->target_waktu) {
+            return 'Tanpa Batas Waktu';
+        }
+
+        $hari = now()->startOfDay()->diffInDays(
+            \Carbon\Carbon::parse($this->target_waktu)->startOfDay(),
+            false
+        );
+
+        return $hari > 0 ? $hari.' Hari' : 'Berakhir';
+    }
+    public function getSubKategoriLabelAttribute(): ?string
+    {
+        if (!$this->sub_kategori) {
+            return null;
+        }
+
+        return match ($this->sub_kategori) {
+            'fitrah' => 'Zakat Fitrah',
+            'mal' => 'Zakat Penghasilan / Mal',
+            'emas' => 'Zakat Emas',
+            'pertanian' => 'Zakat Pertanian',
+            'peternakan' => 'Zakat Peternakan',
+            default => ucfirst($this->sub_kategori),
+        };
     }
 }

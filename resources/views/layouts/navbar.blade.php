@@ -9,13 +9,17 @@
 
         <!-- SEARCH MOBILE -->
         <div class="flex md:hidden items-center w-2/3">
-            <div class="relative w-full">
+            <div class="relative w-80">
                 <input
                     type="text"
-                    placeholder="Cari Program..."
-                    class="w-full border border-green-600 rounded-full py-2 pl-4 pr-10 text-sm focus:ring-2 focus:ring-green-600"
+                    placeholder="Cari program / berita..."
+                    class="search-input w-full border border-green-600 rounded-full px-4 py-2 text-sm"
+                    autocomplete="off"
                 >
-                <i class="bi bi-search absolute right-3 top-1/2 -translate-y-1/2 text-green-700"></i>
+
+                <div
+                    class="search-result absolute left-0 mt-2 w-full bg-white border rounded-lg shadow-lg z-[9999] hidden"
+                ></div>
             </div>
         </div>
 
@@ -70,14 +74,19 @@
         <!-- SEARCH + USER -->
         <div class="hidden md:flex items-center space-x-4">
 
-            <!-- SEARCH -->
-            <div class="relative">
+            <div class="relative w-80">
                 <input
                     type="text"
-                    placeholder="Cari Program..."
-                    class="border border-green-600 rounded-full px-4 py-2 pr-10 text-sm focus:ring-2 focus:ring-green-600"
+                    placeholder="Cari program / berita..."
+                    class="search-input w-full border border-green-600 rounded-full px-4 py-2 text-sm"
+                    autocomplete="off"
                 >
+
                 <i class="bi bi-search absolute right-3 top-1/2 -translate-y-1/2 text-green-700"></i>
+
+                <div
+                    class="search-result absolute left-0 mt-2 w-full bg-white border rounded-lg shadow-lg z-[9999] hidden"
+                ></div>
             </div>
 
             <!-- GUEST -->
@@ -136,3 +145,47 @@
         </div>
     </div>
 </nav>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    document.querySelectorAll('.search-input').forEach(input => {
+        const wrapper = input.closest('div');
+        const result  = wrapper.querySelector('.search-result');
+
+        input.addEventListener('keyup', async () => {
+            const q = input.value.trim();
+
+            if (q.length < 2) {
+                result.innerHTML = '';
+                result.classList.add('hidden');
+                return;
+            }
+
+            const res = await fetch(`{{ url('/') }}?q=${q}`, {
+                headers: { 'Accept': 'application/json' }
+            });
+
+            const data = await res.json();
+
+            if (!data.length) {
+                result.innerHTML = `
+                    <div class="px-4 py-2 text-sm text-gray-500">
+                        Tidak ada hasil
+                    </div>`;
+                result.classList.remove('hidden');
+                return;
+            }
+
+            result.innerHTML = data.map(item => `
+                <a href="${item.url}" class="block px-4 py-2 hover:bg-gray-100">
+                    <div class="font-medium">${item.judul}</div>
+                    <div class="text-xs text-gray-500">${item.type}</div>
+                </a>
+            `).join('');
+
+            result.classList.remove('hidden');
+        });
+    });
+
+});
+</script>

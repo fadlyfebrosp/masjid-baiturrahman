@@ -5,9 +5,29 @@
 @section('content')
 
 <!-- ================= HEADER ================= -->
-<div class="mb-6">
-  <h1 class="text-3xl font-bold text-green-700">Dashboard Finance</h1>
+<div class="mb-6 flex items-center justify-between">
+
+    <!-- TITLE (KIRI) -->
+    <h1 class="text-3xl font-bold text-green-700">
+        Dashboard Finance
+    </h1>
+
+    <!-- BREADCRUMB (KANAN) -->
+    <div class="text-sm text-gray-600 flex items-center gap-1">
+        <a href="{{ route('finance.dashboard') }}"
+           class="hover:underline hover:text-green-700">
+            Home
+        </a>
+
+        <span class="text-gray-400">›</span>
+
+        <span class="font-semibold text-gray-800">
+            Dashboard Finance
+        </span>
+    </div>
+
 </div>
+
 
 <!-- ================= CARD ================= -->
 <div class="grid grid-cols-1 md:grid-cols-4 gap-6">

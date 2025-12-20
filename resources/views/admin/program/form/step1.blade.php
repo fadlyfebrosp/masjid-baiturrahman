@@ -20,6 +20,27 @@
         @endforeach
     </select>
 </div>
+<!-- SUB KATEGORI (KHUSUS ZAKAT) -->
+<div class="mb-4" x-show="form.kategori === 'Zakat'">
+    <label for="sub_kategori" class="block text-sm font-semibold mb-1">
+        Sub Kategori Zakat
+    </label>
+
+    <select
+        id="sub_kategori"
+        name="sub_kategori"
+        x-model="form.sub_kategori"
+        class="w-full border rounded-lg px-3 py-2
+               focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+    >
+        <option value="">Pilih Sub Kategori</option>
+        <option value="fitrah">Zakat Fitrah</option>
+        <option value="mal">Zakat Penghasilan / Mal</option>
+        <option value="emas">Zakat Emas</option>
+        <option value="pertanian">Zakat Pertanian</option>
+        <option value="peternakan">Zakat Peternakan</option>
+    </select>
+</div>
 
 <!-- Minimal Donasi -->
 <div class="mb-4">

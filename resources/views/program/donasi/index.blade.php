@@ -1,4 +1,3 @@
-{{-- program/donasi/index.blade.php --}}
 @extends('layouts.app')
 
 @section('title', $kategori . ' - Masjid Baiturrahman')
@@ -6,133 +5,177 @@
 @section('content')
 
 {{-- ================= HEADER ================= --}}
-<div class="bg-green-50 py-10">
-    <div class="container mx-auto px-6">
-        <h1 class="text-2xl font-bold text-gray-800">
+<div class="bg-green-50 py-8 sm:py-10">
+    <div class="container mx-auto px-4 sm:px-6">
+        <h1 class="text-xl sm:text-2xl font-bold text-gray-800">
             <i>Program</i> / {{ $kategori }}
         </h1>
     </div>
 </div>
 
-{{-- ================= BAGIAN KHUSUS ZAKAT ================= --}}
+{{-- ================= FILTER ZAKAT ================= --}}
 @if ($kategori === 'Zakat')
-<div class="px-4 py-5 bg-white">
-    <h2 class="text-lg font-semibold text-gray-800 mb-1">Siap bayar zakat?</h2>
-    <p class="text-sm text-gray-600 mb-4">
-        Hitung dan salurkan ke lembaga amil terpercaya
-    </p>
+<div class="bg-white border-b">
+    <div class="container mx-auto px-4 py-4">
+        <p class="text-sm font-semibold text-gray-700 mb-3">
+            Pilih Jenis Zakat
+        </p>
 
-    <div class="bg-white border rounded-xl p-4 shadow-sm flex items-center gap-4">
-        <div class="text-4xl">🧮</div>
+        <div
+            class="
+            flex sm:flex-wrap
+            gap-2
+            overflow-x-auto sm:overflow-visible
+            -mx-4 px-4 sm:mx-0 sm:px-0
+            pb-2
+            scrollbar-hide
+            "
+        >
+            @php
+                $subZakat = [
+                    'fitrah'     => 'Zakat Fitrah',
+                    'mal'        => 'Zakat Mal',
+                    'emas'       => 'Zakat Emas',
+                    'pertanian'  => 'Zakat Pertanian',
+                    'peternakan' => 'Zakat Peternakan',
+                ];
+            @endphp
 
-        <div class="flex-1">
-            <p class="text-base font-semibold text-gray-800">Kalkulator Zakat</p>
-            <p class="text-xs text-gray-500">
-                Hitung kewajiban zakat profesi, fitrah dan maal kamu
-            </p>
+            {{-- SEMUA --}}
+            <a href="{{ route('program.index', ['kategori' => 'zakat']) }}"
+               class="
+               shrink-0
+               px-4 py-2
+               text-xs sm:text-sm
+               rounded-full
+               border
+               font-semibold
+               transition
+               {{ request('sub')
+                    ? 'bg-white text-gray-700 hover:bg-green-50'
+                    : 'bg-green-600 text-white shadow'
+               }}">
+                Semua
+            </a>
+
+            {{-- SUB --}}
+            @foreach ($subZakat as $key => $label)
+                <a href="{{ route('program.index', ['kategori' => 'zakat', 'sub' => $key]) }}"
+                   class="
+                   shrink-0
+                   px-4 py-2
+                   text-xs sm:text-sm
+                   rounded-full
+                   border
+                   font-semibold
+                   transition
+                   {{ request('sub') === $key
+                        ? 'bg-green-600 text-white shadow'
+                        : 'bg-white text-gray-700 hover:bg-green-50'
+                   }}">
+                    {{ $label }}
+                </a>
+            @endforeach
         </div>
-
-        <a href="#"
-           class="px-4 py-2 bg-green-600 text-white rounded-full text-sm font-medium">
-            Hitung
-        </a>
     </div>
 </div>
 @endif
 
-{{-- ================= SECTION LIST PROGRAM ================= --}}
+{{-- ================= LIST PROGRAM ================= --}}
 <section class="bg-white py-6">
-    <div class="px-4 mb-4">
-        <h2 class="text-base font-semibold text-gray-800">
-            {{ $kategori }} ke program spesifik
-        </h2>
-        <p class="text-xs text-gray-600">
-            Salurkan {{ strtolower($kategori) }} ke program terverifikasi
+    <div class="container mx-auto px-4">
+
+        <div class="mb-4">
+            <h2 class="text-base font-semibold text-gray-800">
+                {{ $kategori }} ke program spesifik
+            </h2>
+            <p class="text-xs text-gray-600">
+                Salurkan {{ strtolower($kategori) }} ke program terverifikasi
+            </p>
+        </div>
+
+        <p class="text-sm font-semibold text-orange-600 mb-3">
+            REKOMENDASI
         </p>
-    </div>
 
-    <div class="px-4">
-        <p class="text-sm font-semibold text-orange-600 mb-3">REKOMENDASI</p>
-
-        {{-- GRID PROGRAM --}}
-        <div id="programGrid"
-             class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-
+        {{-- GRID --}}
+        <div
+            id="programGrid"
+            class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6"
+        >
             @foreach ($data as $item)
-
             @php
                 $terkumpul = $item->terkumpul ?? 0;
-                $target = $item->target_dana ?? 1;
+                $target = $item->target_dana && $item->target_dana > 0 ? $item->target_dana : 1;
                 $persen = min(100, ($terkumpul / $target) * 100);
                 $jumlahDonasi = $item->jumlah_donasi ?? 0;
 
                 if ($item->open_goals) {
-                    $sisaHari = "Tanpa Batas Waktu";
+                    $sisaHari = 'Tanpa Batas Waktu';
+                } elseif ($item->target_waktu) {
+                    $hari = now()->startOfDay()->diffInDays(
+                        \Carbon\Carbon::parse($item->target_waktu)->startOfDay(),
+                        false
+                    );
+                    $sisaHari = $hari > 0 ? $hari . ' Hari' : 'Berakhir';
                 } else {
-                    if ($item->target_waktu) {
-                        $sisa = now()->startOfDay()->diffInDays(
-                            \Carbon\Carbon::parse($item->target_waktu)->startOfDay(),
-                            false
-                        );
-                        $sisaHari = $sisa > 0 ? ceil($sisa) . " Hari" : "Berakhir";
-                    } else {
-                        $sisaHari = "Belum diatur";
-                    }
+                    $sisaHari = 'Belum diatur';
                 }
             @endphp
 
             {{-- CARD --}}
-            <div class="program-card hidden w-full bg-white border border-green-400 rounded-xl shadow hover:shadow-md transition overflow-hidden">
+            <div class="program-card hidden group bg-white rounded-2xl border shadow-sm hover:shadow-xl transition overflow-hidden">
 
-                {{-- FOTO --}}
-                <div class="relative group">
+                <div class="relative">
                     <img
                         src="{{ $item->foto ? asset('storage/' . $item->foto) : asset('assets/img/program/default.jpg') }}"
                         alt="{{ $item->judul }}"
-                        class="w-full h-36 md:h-40 lg:h-44 object-cover transition-transform duration-500 group-hover:scale-105">
+                        class="w-full h-48 sm:h-40 md:h-44 object-cover group-hover:scale-105 transition">
 
-                    <span class="absolute top-2 left-2 bg-green-600 text-white text-[10px] px-2 py-0.5 rounded-md uppercase">
+                    <span class="absolute top-3 left-3 bg-green-600 text-white text-[10px] px-3 py-1 rounded-full font-semibold">
                         {{ $item->kategori }}
                     </span>
                 </div>
 
-                {{-- KONTEN --}}
-                <div class="p-3 space-y-2 text-sm">
-
-                    <h1 class="font-semibold text-gray-900 leading-snug line-clamp-2">
+                <div class="p-4 space-y-3">
+                    <h3 class="font-semibold text-gray-900 line-clamp-2 text-sm sm:text-base min-h-[48px]">
                         {{ $item->judul }}
-                    </h1>
+                    </h3>
 
-                    <div class="text-gray-700 text-xs">
-                        <span class="font-semibold text-black">
+                    <div class="text-xs text-gray-600">
+                        <span class="text-base font-bold text-gray-900">
                             Rp {{ number_format($terkumpul, 0, ',', '.') }}
                         </span>
-                        dari
-                        <span class="font-bold">
+                        /
+                        <span class="font-semibold">
                             Rp {{ number_format($target, 0, ',', '.') }}
                         </span>
                     </div>
 
-                    <div class="w-full bg-gray-200 rounded-full h-1.5">
-                        <div class="bg-green-600 h-1.5 rounded-full"
-                             style="width: {{ $persen }}%">
+                    <div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div
+                                class="bg-green-600 h-2 rounded-full"
+                                style="width: {{ $persen }}%">
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between text-[11px] text-gray-500 mt-1">
+                            <span>{{ $persen }}%</span>
+                            <span>{{ $jumlahDonasi }} donasi</span>
                         </div>
                     </div>
 
-                    <div class="flex justify-between text-gray-600 text-[11px] w-full">
-                        <span>{{ $jumlahDonasi }} Donasi</span>
-
-                        <div class="flex flex-col items-end leading-tight">
-                            <span class="font-medium text-gray-700">Sisa Waktu:</span>
-                            <span class="text-gray-500">{{ $sisaHari }}</span>
-                        </div>
+                    <div class="flex justify-between text-xs text-gray-600">
+                        <span>⏳ {{ $sisaHari }}</span>
+                        <span class="text-green-600 font-semibold">Terverifikasi</span>
                     </div>
 
                     <a href="{{ route('program.detail', [
                         'kategori' => strtolower($item->kategori),
                         'slug' => $item->slug
                     ]) }}"
-                       class="block w-full bg-green-600 text-white text-center py-2 rounded-md text-xs font-semibold hover:bg-green-700">
+                       class="block w-full bg-green-600 text-white text-center py-2.5 rounded-xl text-sm font-semibold hover:bg-green-700">
                         Infaq Sekarang
                     </a>
                 </div>
@@ -142,25 +185,15 @@
 
         {{-- LOAD MORE --}}
         <div class="mt-6 flex justify-center">
-            <button id="loadMoreBtn"
+            <button
+                id="loadMoreBtn"
                 class="px-6 py-2 bg-green-600 text-white rounded-full text-sm font-semibold flex items-center gap-2">
-                <svg id="loadingIcon"
-                     class="hidden animate-spin w-4 h-4"
-                     viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10"
-                        stroke="white" stroke-width="4"
-                        fill="none" opacity="0.25"/>
-                    <path d="M22 12a10 10 0 0 1-10 10"
-                        stroke="white" stroke-width="4"
-                        fill="none"/>
+                <svg id="loadingIcon" class="hidden animate-spin w-4 h-4" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" stroke="white" stroke-width="4" fill="none" opacity="0.25"/>
+                    <path d="M22 12a10 10 0 0 1-10 10" stroke="white" stroke-width="4" fill="none"/>
                 </svg>
                 <span id="btnText">Load More</span>
             </button>
-        </div>
-
-        {{-- PAGINATION (tetap ada, tapi disembunyikan UI) --}}
-        <div class="hidden">
-            {{ $data->links() }}
         </div>
 
     </div>
@@ -169,58 +202,53 @@
 {{-- ================= JS LOAD MORE ================= --}}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const cards = document.querySelectorAll('.program-card');
+
+    const cards = [...document.querySelectorAll('.program-card')];
     const btn = document.getElementById('loadMoreBtn');
     const loader = document.getElementById('loadingIcon');
     const text = document.getElementById('btnText');
     const grid = document.getElementById('programGrid');
 
-    const SHOW_FIRST = 4;
     let expanded = false;
 
-    function showInitial() {
-        cards.forEach((card, index) => {
-            if (index < SHOW_FIRST) {
-                card.classList.remove('hidden');
-            } else {
-                card.classList.add('hidden');
-            }
+    function getLimit() {
+        if (window.innerWidth < 640) return 3;
+        if (window.innerWidth < 1024) return 6;
+        return 8;
+    }
+
+    let LIMIT = getLimit();
+
+    function render() {
+        cards.forEach((card, i) => {
+            card.classList.toggle('hidden', !expanded && i >= LIMIT);
         });
 
-        text.textContent = 'Load More';
+        btn.classList.toggle('hidden', cards.length <= LIMIT);
+        text.textContent = expanded ? 'Tutup' : 'Load More';
         loader.classList.add('hidden');
-        expanded = false;
     }
 
-    function showAll() {
-        cards.forEach(card => card.classList.remove('hidden'));
-        text.textContent = 'Tutup';
-        loader.classList.add('hidden');
-        expanded = true;
-    }
-
-    // INIT
-    showInitial();
-
-    if (cards.length <= SHOW_FIRST) {
-        btn.classList.add('hidden');
-    }
+    render();
 
     btn.addEventListener('click', () => {
         loader.classList.remove('hidden');
         text.textContent = 'Loading...';
 
         setTimeout(() => {
-            if (!expanded) {
-                showAll();
-            } else {
-                showInitial();
-                grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        }, 700);
+            expanded = !expanded;
+            render();
+            if (!expanded) grid.scrollIntoView({ behavior: 'smooth' });
+        }, 500);
     });
+
+    window.addEventListener('resize', () => {
+        LIMIT = getLimit();
+        expanded = false;
+        render();
+    });
+
 });
 </script>
-
 
 @endsection

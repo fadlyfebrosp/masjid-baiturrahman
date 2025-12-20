@@ -27,7 +27,7 @@ use App\Http\Controllers\TinyMceController;
 */
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
-
+Route::get('/laporan', [HomeController::class, 'laporan'])->name('laporan.index');
 Route::view('/tentangkami', 'pages.about')->name('tentangkami');
 Route::get('/kontak', [ContactController::class, 'index'])
     ->name('kontak');
@@ -74,6 +74,14 @@ Route::prefix('program')->group(function () {
         [DonasiController::class, 'store']
     )->name('donasi.store');
 });
+/*
+|--------------------------------------------------------------------------
+| KALKULATOR
+|--------------------------------------------------------------------------
+*/
+Route::view('/kalkulatorzakat', 'program.kalkulatorzakat')->name('kalkulator.zakat');
+Route::view('/kalkulatorshodaqah', 'program.kalkulatorshodaqah')->name('kalkulator.shodaqah');
+Route::view('/kalkulatorwakaf', 'program.kalkulatorwakaf')->name('kalkulator.wakaf');
 
 /*
 |--------------------------------------------------------------------------
@@ -257,15 +265,6 @@ Route::prefix('finance')
         Route::get('/pengeluaran/laporan/pdf', [PengeluaranController::class, 'exportPdf'])
             ->name('laporan.pengeluaran.pdf');
     });
-/*
-|--------------------------------------------------------------------------
-| KALKULATOR
-|--------------------------------------------------------------------------
-*/
-Route::view('/kalkulatorzakat', 'program.kalkulatorzakat')->name('kalkulator.zakat');
-Route::view('/kalkulatorinfaq', 'program.kalkulatorinfaq')->name('kalkulator.infaq');
-Route::view('/kalkulatorshodaqah', 'program.kalkulatorshodaqah')->name('kalkulator.shodaqah');
-Route::view('/kalkulatorwakaf', 'program.kalkulatorwakaf')->name('kalkulator.wakaf');
 
 /*
 |--------------------------------------------------------------------------

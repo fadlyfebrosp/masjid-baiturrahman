@@ -11,6 +11,7 @@ return new class extends Migration
         Schema::create('programs', function (Blueprint $table) {
             $table->id();
             $table->enum('kategori', ['Zakat', 'Infak', 'Sedekah', 'Wakaf', 'Hibah']);
+            $table->string('sub_kategori')->nullable();
             $table->string('judul');
             $table->integer('min_donasi')->default(0);
             $table->json('custom_nominal')->nullable();

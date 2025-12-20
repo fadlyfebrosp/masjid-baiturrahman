@@ -44,12 +44,29 @@
             x-text="form.nama_produk || 'Judul Program'">
             Judul Program
         </h1>
+        <!-- SUB KATEGORI (JIKA ADA & ZAKAT) -->
+        <span
+            x-show="form.kategori === 'Zakat' && form.sub_kategori"
+            class="px-3 py-1 rounded-full bg-blue-100 text-blue-700"
+            x-text="subKategoriLabel(form.sub_kategori)">
+        </span>
 
         <!-- TOTAL & TARGET DONASI -->
-        <div class="text-gray-700 text-base">
-            <span class="font-semibold text-black">Rp 0</span>
-            <span> terkumpul dari </span>
-            <span class="font-bold" x-text="formatRupiah(form.target_dana || 0)"></span>
+        <div class="text-gray-700 text-base flex justify-between items-center">
+            <div>
+                <span class="font-semibold text-black"
+                    x-text="formatRupiah(totalTerkumpul)">
+                </span>
+                <span> terkumpul dari </span>
+                <span class="font-bold"
+                    x-text="formatRupiah(form.target_dana || 0)">
+                </span>
+            </div>
+
+            <!-- PERSENTASE -->
+            <span class="text-sm font-semibold text-gray-600"
+                x-text="progressPercent + '%'">
+            </span>
         </div>
 
         <!-- PROGRESS BAR -->

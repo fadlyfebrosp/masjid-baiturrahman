@@ -120,6 +120,7 @@ class ProgramController extends Controller
         // Validasi dasar (tanpa closure untuk tanggal)
         $request->validate([
             'kategori'      => 'required|string',
+            'sub_kategori'   => 'nullable|required_if:kategori,Zakat|in:fitrah,mal,emas,pertanian,peternakan',
             'judul'         => 'required|string|max:255',
             'deskripsi'     => 'nullable|string',
             'foto'          => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
@@ -152,9 +153,12 @@ class ProgramController extends Controller
         $fotoPath = $request->hasFile('foto')
             ? $request->file('foto')->store('programs', 'public')
             : null;
-
+        $subKategori = $request->kategori === 'Zakat'
+            ? $request->sub_kategori
+            : null;
         $program = Program::create([
             'kategori'       => $request->kategori,
+            'sub_kategori'   => $subKategori,
             'judul'          => $request->judul,
             'deskripsi'      => $request->deskripsi,
             'foto'           => $fotoPath,
@@ -188,6 +192,7 @@ class ProgramController extends Controller
         return view('admin.program.form', compact('kategori', 'mode', 'program'));
     }
 
+
     // UPDATE PROGRAM
     public function update(Request $request, Program $program)
     {
@@ -197,6 +202,7 @@ class ProgramController extends Controller
         // Validasi dasar
         $request->validate([
             'kategori'      => 'required|string',
+            'sub_kategori'   => 'nullable|required_if:kategori,Zakat|in:fitrah,mal,emas,pertanian,peternakan',
             'judul'         => 'required|string|max:255',
             'deskripsi'     => 'nullable|string',
             'foto'          => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
@@ -233,9 +239,12 @@ class ProgramController extends Controller
                 }
             }
         }
-
+        $subKategori = $request->kategori === 'Zakat'
+            ? $request->sub_kategori
+            : null;
         $program->update([
             'kategori'       => $request->kategori,
+            'sub_kategori'   => $subKategori,
             'judul'          => $request->judul,
             'deskripsi'      => $request->deskripsi,
             'foto'           => $fotoPath,
@@ -308,10 +317,10 @@ class ProgramController extends Controller
         if ($item->open_goals || !$item->target_waktu) {
             $sisaHari = 'Tanpa batas waktu';
         } else {
-            $sisaHari = now()->diffInDays($item->target_waktu, false);
-            $sisaHari = $sisaHari > 0
-                ? $sisaHari . ' hari lagi'
-                : 'Berakhir';
+            $hari = floor(now()->diffInRealDays($item->target_waktu, false));
+            $sisaHari = $hari > 0
+            ? $hari . ' hari lagi'
+            : 'Berakhir';
         }
 
         $donaturs = Donasi::where('program_id', $item->id)
