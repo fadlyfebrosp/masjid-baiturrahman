@@ -18,10 +18,8 @@
     <div class="absolute top-[-40px] right-[-60px] w-56 h-56 bg-gradient-to-tr from-green-400 to-green-200 rounded-[100px_50px_100px_50px] blur-xl opacity-60"></div>
     <div class="absolute bottom-[-50px] left-[-40px] w-56 h-56 bg-gradient-to-br from-green-100 to-green-400 rounded-[50px_100px_50px_100px] blur-xl opacity-60"></div>
 
-
-
     <div class="relative flex justify-center mb-4">
-      <img src="{{ asset('assets/img/logo.png') }}" alt="Logo Masjid" class="w-40 h-40 object-contain">
+      <img src="{{ $logo }}" alt="Logo Masjid" class="w-40 h-40 object-contain">
     </div>
 
     <div class="relative text-center mb-6">

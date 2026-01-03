@@ -1,6 +1,14 @@
 @extends('layouts.app')
 
-@section('title', 'Hubungi Kami - Masjid Baiturrahman')
+@section('title', 'Hubungi Kami | Masjid Baiturrahman')
+
+@section('meta_description')
+Hubungi Masjid Baiturrahman untuk informasi kegiatan, donasi, zakat, dan kerja sama.
+@endsection
+
+@section('meta_keywords')
+kontak masjid, hubungi masjid, masjid baiturrahman
+@endsection
 
 @section('content')
 <!-- Hero Section -->

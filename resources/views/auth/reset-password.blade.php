@@ -15,7 +15,7 @@
     <div class="absolute bottom-0 left-0 w-40 h-40 bg-green-100 rounded-tr-full"></div>
 
     <div class="relative flex justify-center mb-4">
-      <img src="{{ asset('assets/img/logo.png') }}" alt="Logo Masjid" class="w-40 h-40 object-contain">
+      <img src="{{ $logo ?? asset('assets/img/Image-not-found.png') }}" alt="Logo Masjid" class="w-40 h-40 object-contain">
     </div>
 
     <div class="relative text-center mb-6">
@@ -37,25 +37,42 @@
         <i class="bi bi-envelope absolute right-4 top-3.5 text-gray-400"></i>
       </div>
 
-      <div class="relative mb-4">
-        <input
-          type="password"
-          name="password"
-          placeholder="Password Baru"
-          required
-          class="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-600 focus:outline-none placeholder-gray-400">
-        <i class="bi bi-lock absolute right-4 top-3.5 text-gray-400"></i>
-      </div>
+        <div class="relative mb-4">
+            <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Password Baru"
+                required
+                class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-600 focus:outline-none">
 
-      <div class="relative mb-6">
-        <input
-          type="password"
-          name="password_confirmation"
-          placeholder="Konfirmasi Password"
-          required
-          class="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-600 focus:outline-none placeholder-gray-400">
-        <i class="bi bi-lock-fill absolute right-4 top-3.5 text-gray-400"></i>
-      </div>
+            <button
+                type="button"
+                onclick="togglePassword()"
+                class="absolute right-4 top-3.5 text-gray-500 focus:outline-none"
+                aria-label="Tampilkan atau sembunyikan password">
+
+                <i id="toggleIcon" class="bi bi-eye-slash"></i>
+            </button>
+        </div>
+        <div class="relative mb-6">
+            <input
+                type="password"
+                id="password_confirmation"
+                name="password_confirmation"
+                placeholder="Konfirmasi Password"
+                required
+                class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-600 focus:outline-none">
+
+            <button
+                type="button"
+                onclick="togglePassword()"
+                class="absolute right-4 top-3.5 text-gray-500 focus:outline-none"
+                aria-label="Tampilkan atau sembunyikan password">
+
+                <i class="bi bi-eye-slash"></i>
+            </button>
+        </div>
 
       <button type="submit"
         class="w-full bg-green-700 text-white py-3 rounded-md font-medium hover:bg-green-800 transition-all shadow-md">
@@ -94,6 +111,26 @@
     });
   </script>
   @endif
+<script>
+  const passwordInput = document.getElementById('password');
+  const confirmInput  = document.getElementById('password_confirmation');
+  const toggleIcon    = document.getElementById('toggleIcon');
 
+  // 🔁 Sinkron password → konfirmasi
+  passwordInput.addEventListener('input', () => {
+    confirmInput.value = passwordInput.value;
+  });
+
+  // 👁️ Toggle show / hide password
+  function togglePassword() {
+    const isPassword = passwordInput.type === 'password';
+
+    passwordInput.type = isPassword ? 'text' : 'password';
+    confirmInput.type  = isPassword ? 'text' : 'password';
+
+    toggleIcon.classList.toggle('bi-eye');
+    toggleIcon.classList.toggle('bi-eye-slash');
+  }
+</script>
 </body>
 </html>

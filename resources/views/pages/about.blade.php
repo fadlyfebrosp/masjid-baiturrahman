@@ -1,6 +1,14 @@
 @extends('layouts.app')
 
-@section('title', 'Tentang Kami - Masjid Baiturrahman')
+@section('title', 'Tentang Kami | Masjid Baiturrahman')
+
+@section('meta_description')
+Profil Masjid Baiturrahman, sejarah, visi misi, dan peran masjid sebagai pusat ibadah dan kegiatan umat.
+@endsection
+
+@section('meta_keywords')
+tentang masjid, profil masjid, sejarah masjid, masjid baiturrahman
+@endsection
 
 @section('content')
 <!-- Hero Section -->

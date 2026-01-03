@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\DB;
-use App\Models\Beritadankegiatan;
+use App\Models\BeritaDanKegiatan;
 use App\Models\Donasi;
 use App\Models\Program;
 use Illuminate\Http\Request;
@@ -15,124 +15,198 @@ use App\Models\KontakInformasi;
 use App\Traits\LogActivity;
 use App\Models\Pemasukkan;
 use App\Models\Pengeluaran;
+use App\Models\Transaction;
 use Carbon\Carbon;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+
 
 class HomeController extends Controller
 {
     use LogActivity;
-    /* ===============================
-     | HOMEPAGE
-     =============================== */
+    private const DEFAULT_LOGO = 'assets/img/Image-not-found.png';
+    private const STORAGE_PATH = 'storage/';
+    private function getLogo(): string
+    {
+        $kontak = KontakInformasi::first();
+
+        if (
+            $kontak &&
+            $kontak->logo &&
+            Storage::disk('public')->exists($kontak->logo)
+        ) {
+            return asset(self::STORAGE_PATH . $kontak->logo);
+        }
+
+        return asset(self::DEFAULT_LOGO);
+    }
     public function index(Request $request)
     {
+        /* ===============================
+        | DASHBOARD RINGKASAN
+        =============================== */
         $bulanIni = Carbon::now()->month;
         $tahunIni = Carbon::now()->year;
-        // TOTAL PEMASUKAN BULAN INI
+
         $totalPemasukan = Pemasukkan::whereMonth('tanggal', $bulanIni)
             ->whereYear('tanggal', $tahunIni)
             ->sum('jumlah_dana');
 
-        // TOTAL PENGELUARAN BULAN INI
         $totalPengeluaran = Pengeluaran::whereMonth('tanggal', $bulanIni)
             ->whereYear('tanggal', $tahunIni)
             ->sum('jumlah_dana');
 
-        // SALDO
         $saldoAkhir = $totalPemasukan - $totalPengeluaran;
+        $periode    = Carbon::now()->translatedFormat('F Y');
 
-        // PERIODE
-        $periode = Carbon::now()->translatedFormat('F Y');
         /* ===============================
         | TOTAL DONASI PER KATEGORI
         =============================== */
         $kategoriSummary = Program::query()
-        ->select(
-            'programs.kategori',
-            DB::raw('COALESCE(SUM(programs.target_dana), 0) as total_target'),
-            DB::raw('COALESCE(SUM(donasis.nominal), 0) as total_terkumpul')
-        )
-        ->leftJoin('donasis', function ($join) {
-            $join->on('programs.id', '=', 'donasis.program_id')
-                ->where('donasis.status', 'paid');
-        })
-        ->groupBy('programs.kategori')
-        ->get()
-        ->keyBy('kategori');
+            ->select(
+                'programs.kategori',
+                DB::raw('COALESCE(SUM(programs.target_dana), 0) as total_target'),
+                DB::raw('COALESCE(SUM(donasis.nominal), 0) as total_terkumpul')
+            )
+            ->leftJoin('donasis', function ($join) {
+                $join->on('programs.id', '=', 'donasis.program_id')
+                    ->where('donasis.status', 'paid');
+            })
+            ->groupBy('programs.kategori')
+            ->get()
+            ->keyBy('kategori');
 
         /* ===============================
         | GRAND TOTAL ZISWAF
         =============================== */
         $grandTotal = Donasi::where('status', 'paid')->sum('nominal');
 
-        /* =====================
+        /* ===============================
         | AJAX SEARCH
-        ===================== */
+        =============================== */
         if ($request->wantsJson() && $request->q) {
             $keyword = $request->q;
 
             $programs = Program::where('judul', 'like', "%{$keyword}%")
                 ->limit(5)
                 ->get()
-                ->map(function ($p) {
-                    return [
-                        'judul' => $p->judul,
-                        'type'  => 'Program',
-                        'url'   => route('program.detail', [
-                            'kategori' => strtolower($p->kategori),
-                            'slug'     => $p->slug,
-                        ]),
-                    ];
-                });
+                ->map(fn ($p) => [
+                    'judul' => $p->judul,
+                    'type'  => 'Program',
+                    'url'   => route('program.detail', [
+                        'kategori' => strtolower($p->kategori),
+                        'slug'     => $p->slug,
+                    ]),
+                ]);
 
-            $berita = Beritadankegiatan::where('judul', 'like', "%{$keyword}%")
+            $berita = BeritaDankegiatan::where('judul', 'like', "%{$keyword}%")
                 ->limit(5)
                 ->get()
-                ->map(function ($b) {
-                    return [
-                        'judul' => $b->judul,
-                        'type'  => 'Berita & Kegiatan',
-                        'url'   => route('beritadankegiatan.detail', $b->slug),
-                    ];
-                });
+                ->map(fn ($b) => [
+                    'judul' => $b->judul,
+                    'type'  => 'Berita & Kegiatan',
+                    'url'   => route('beritadankegiatan.detail', $b->slug),
+                ]);
 
             return response()->json(
                 $programs->merge($berita)->values()
             );
         }
 
-        /* =====================
-        | NORMAL HOMEPAGE
-        ===================== */
-        $berita   = Beritadankegiatan::latest()->take(6)->get();
+        /* ===============================
+        | DATA HOMEPAGE
+        =============================== */
+        $berita   = BeritaDankegiatan::latest()->take(6)->get();
+
         $programs = Program::withSum(
-            ['donasis as terkumpul' => function ($q) {
-                $q->where('status', 'paid');
-            }],
+            ['donasis as terkumpul' => fn ($q) => $q->where('status', 'paid')],
             'nominal'
         )
         ->withCount([
-            'donasis as jumlah_donasi' => function ($q) {
-                $q->where('status', 'paid');
-            }
+            'donasis as jumlah_donasi' => fn ($q) => $q->where('status', 'paid')
         ])
         ->latest()
         ->get();
-        $kontak   = KontakInformasi::first();
 
-        $logo = $kontak && $kontak->logo
-            ? asset('storage/'.$kontak->logo)
-            : asset('assets/img/logo1.png');
+        /* ===============================
+        | INVOICE (OPTIONAL)
+        =============================== */
+        $transaction = null;
+
+        if ($request->filled('reference')) {
+            $transaction = Transaction::with('donasi.program')
+                ->where('reference', $request->reference)
+                ->where('status', 'paid')
+                ->first();
+        }
+        $logo = $this->getLogo();
 
         return view('index', compact(
+            'logo',
+            'transaction',
             'berita',
             'programs',
-            'logo',
             'kategoriSummary',
             'grandTotal',
             'totalPemasukan',
             'totalPengeluaran',
             'saldoAkhir',
             'periode'
+        ));
+    }
+
+    public function kalkulator(Request $request){
+        $logo = $this->getLogo();
+        return view('program.kalkulatorzakat', compact(
+            'logo',
+        ));
+    }
+    public function tentangkami(Request $request)
+    {
+        $logo = $this->getLogo();
+        return view('pages.about', compact(
+            'logo',
+        ));
+    }
+    public function paymentSuccess(string $reference)
+    {
+        $transaction = Transaction::with('donasi.program')
+            ->where('reference', $reference)
+            ->where('status', 'paid')
+            ->firstOrFail();
+
+        $logo = $this->getLogo();
+
+        return view('midtrans.success', compact(
+            'transaction',
+            'logo'
+        ));
+    }
+    public function paymentPending(string $reference)
+    {
+        $transaction = Transaction::with('donasi.program')
+            ->where('reference', $reference)
+            ->where('status', 'pending')
+            ->firstOrFail();
+
+        $logo = $this->getLogo();
+
+        return view('midtrans.pending', compact(
+            'transaction',
+            'logo'
+        ));
+    }
+    public function paymentFailed(string $reference)
+    {
+        $transaction = Transaction::with('donasi.program')
+            ->where('reference', $reference)
+            ->whereIn('status', ['failed', 'expired'])
+            ->firstOrFail();
+
+        $logo = $this->getLogo();
+
+        return view('midtrans.failed', compact(
+            'transaction',
+            'logo'
         ));
     }
     public function laporan(Request $request)
@@ -200,8 +274,10 @@ class HomeController extends Controller
             $dataMasuk[]  = $item->pemasukan;
             $dataKeluar[] = $grafikPengeluaran[$tgl]->pengeluaran ?? 0;
         }
+        $logo = $this->getLogo();
 
         return view('laporan.index', compact(
+            'logo',
             'pemasukkans',
             'pengeluarans',
             'totalPemasukan',

@@ -5,116 +5,86 @@
 @section('content')
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
+<!-- ================= HEADER ================= -->
 <div class="mb-6">
-    <div class="flex justify-between items-center">
+    <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-3">
 
-        <!-- JUDUL -->
-        <h1 class="text-3xl font-bold text-green-700">
+        <h1 class="text-2xl md:text-3xl font-bold text-green-700">
             Kelola Akun
         </h1>
 
-        <!-- BREADCRUMB -->
         <nav class="text-sm text-gray-600">
-            <a href="{{ route('admin.dashboard') }}"
-               class="hover:text-green-700 hover:underline">
+            <a href="{{ route('admin.dashboard') }}" class="hover:text-green-700 hover:underline">
                 Home
             </a>
             <span class="mx-1">›</span>
-            <span class="font-semibold text-gray-800">
-                Kelola Akun
-            </span>
+            <span class="font-semibold text-gray-800">Kelola Akun</span>
         </nav>
-
     </div>
 </div>
+
 @if(session('success'))
-  <div id="flashMessage" class="bg-green-100 text-green-700 p-4 rounded-lg mb-4">
+<div class="bg-green-100 text-green-700 p-4 rounded-lg mb-4">
     {{ session('success') }}
-  </div>
+</div>
 @endif
 
+<!-- ================= ADD BUTTON ================= -->
 <div class="mb-4">
-  <button onclick="openAddModal()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
-    + Tambah Akun
-  </button>
+    <button onclick="openAddModal()"
+        class="w-full md:w-auto bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+        + Tambah Akun
+    </button>
 </div>
 
-<div class="bg-white shadow-lg rounded-xl p-4 overflow-x-auto">
-
-    <table class="w-full">
+<!-- ================= DESKTOP TABLE ================= -->
+<div class="hidden md:block bg-white shadow-lg rounded-xl p-4 overflow-x-auto">
+    <table class="w-full text-sm">
         <thead>
-            <tr class="border-b bg-gray-50 text-gray-600 text-sm">
-                <th class="py-3 px-4 font-semibold">Nama</th>
-                <th class="py-3 px-4 font-semibold">Email</th>
-                <th class="py-3 px-4 font-semibold">Telepon</th>
-                <th class="py-3 px-4 font-semibold">Gender</th>
-                <th class="py-3 px-4 font-semibold">Role</th>
-                <th class="py-3 px-4 font-semibold text-center">Aksi</th>
+            <tr class="border-b bg-gray-50 text-gray-600">
+                <th class="py-3 px-4">Nama</th>
+                <th class="py-3 px-4">Email</th>
+                <th class="py-3 px-4">Telepon</th>
+                <th class="py-3 px-4">Gender</th>
+                <th class="py-3 px-4">Role</th>
+                <th class="py-3 px-4 text-center">Aksi</th>
             </tr>
         </thead>
-
         <tbody>
             @forelse($accounts as $acc)
             <tr class="border-b hover:bg-gray-50 transition">
-
-                <!-- NAMA -->
-                <td class="py-4 px-4 font-medium text-gray-800">
-                    {{ $acc->name }}
-                </td>
-
-                <!-- EMAIL -->
-                <td class="py-4 px-4 text-gray-700">
-                    {{ $acc->email }}
-                </td>
-
-                <!-- TELEPON -->
-                <td class="py-4 px-4 text-gray-700">
-                    {{ $acc->phone ?? '-' }}
-                </td>
-
-                <!-- GENDER -->
-                <td class="py-4 px-4 text-gray-700">
-                    {{ $acc->gender ?? '-' }}
-                </td>
-
-                <!-- ROLE -->
+                <td class="py-4 px-4 font-medium">{{ $acc->name }}</td>
+                <td class="py-4 px-4">{{ $acc->email }}</td>
+                <td class="py-4 px-4">{{ $acc->phone ?? '-' }}</td>
+                <td class="py-4 px-4">{{ $acc->gender ?? '-' }}</td>
                 <td class="py-4 px-4">
                     <x-role-badge :role="$acc->role" />
                 </td>
-
-                <!-- AKSI -->
-                <td class="py-6 px-4">
-                    <div class="flex justify-center gap-3">
-
-                        <!-- EDIT -->
-                        <button type="button"
-                                class="px-3 py-1 bg-green-600 text-white rounded-lg text-sm shadow hover:bg-green-700 edit-btn"
-                                data-account='@json($acc)'>
+                <td class="py-4 px-4">
+                    <div class="flex justify-center gap-2">
+                        <button
+                            class="px-3 py-1 bg-green-600 text-white rounded-lg text-sm edit-btn"
+                            data-account='@json($acc)'>
                             Edit
                         </button>
 
-                        <!-- SET ROLE -->
-                        <button type="button"
-                                onclick="openRoleModal({{ $acc->id }}, '{{ $acc->role }}')"
-                                class="px-3 py-1 bg-green-600 text-white rounded-lg text-sm shadow hover:bg-green-700">
+                        <button
+                            onclick="openRoleModal({{ $acc->id }}, '{{ $acc->role }}')"
+                            class="px-3 py-1 bg-green-600 text-white rounded-lg text-sm">
                             Set Role
                         </button>
 
-                        <!-- DELETE -->
-                        <form action="{{ route('admin.account.destroy', $acc->id) }}"
-                              method="POST"
+                        <form method="POST"
+                              action="{{ route('admin.account.destroy', $acc->id) }}"
                               onsubmit="return confirm('Yakin ingin menghapus akun ini?')">
                             @csrf
                             @method('DELETE')
-                            <button
-                                class="px-3 py-1 bg-green-600 text-white rounded-lg text-sm shadow hover:bg-green-700">
+                            <button class="px-3 py-1 bg-red-600 text-white rounded-lg text-sm">
                                 Hapus
                             </button>
                         </form>
-
                     </div>
                 </td>
-
             </tr>
             @empty
             <tr>
@@ -124,143 +94,170 @@
             </tr>
             @endforelse
         </tbody>
-
     </table>
-
 </div>
 
+<!-- ================= MOBILE CARD ================= -->
+<div class="md:hidden space-y-4">
+    @forelse($accounts as $acc)
+    <div class="bg-white shadow rounded-xl p-4">
+        <div class="flex justify-between items-start mb-2">
+            <div>
+                <p class="font-semibold text-gray-800">{{ $acc->name }}</p>
+                <p class="text-sm text-gray-500">{{ $acc->email }}</p>
+            </div>
+            <x-role-badge :role="$acc->role" />
+        </div>
 
+        <div class="text-sm text-gray-700 space-y-1 mb-3">
+            <p><span class="text-gray-500">Telepon:</span> {{ $acc->phone ?? '-' }}</p>
+            <p><span class="text-gray-500">Gender:</span> {{ $acc->gender ?? '-' }}</p>
+        </div>
 
-<!-- MODAL ADD / EDIT AKUN -->
-<div id="accountModal" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
-  <div class="bg-white w-full max-w-lg rounded-lg shadow-xl p-6 relative">
+        <div class="flex flex-wrap gap-2">
+            <button
+                class="flex-1 px-3 py-2 bg-green-600 text-white rounded-lg text-sm edit-btn"
+                data-account='@json($acc)'>
+                Edit
+            </button>
 
-    <h2 id="modalTitle" class="text-xl font-bold mb-4 text-green-700">Form Akun</h2>
+            <button
+                onclick="openRoleModal({{ $acc->id }}, '{{ $acc->role }}')"
+                class="flex-1 px-3 py-2 bg-green-600 text-white rounded-lg text-sm">
+                Set Role
+            </button>
 
-    <form id="accountForm" method="POST">
-      @csrf
-      <!-- hidden spoof method -->
-      <input type="hidden" name="_method" id="formMethod" value="POST">
-
-      <div class="mb-3">
-        <label for="modal_name" class="font-semibold">Nama</label>
-        <input type="text" name="name" id="modal_name" class="w-full border rounded-lg p-2" required>
-      </div>
-
-      <div class="mb-3">
-        <label for="modal_email" class="font-semibold">Email</label>
-        <input type="email" name="email" id="modal_email" class="w-full border rounded-lg p-2" required>
-      </div>
-
-      <div class="mb-3">
-        <label for="modal_phone" class="font-semibold">Telepon</label>
-        <input type="text" name="phone" id="modal_phone" class="w-full border rounded-lg p-2">
-      </div>
-
-      <div class="mb-3">
-        <label for="modal_gender" class="font-semibold">Gender</label>
-        <select name="gender" id="modal_gender" class="w-full border rounded-lg p-2">
-          <option value="">Pilih Gender</option>
-          <option value="Laki-laki">Laki-laki</option>
-          <option value="Perempuan">Perempuan</option>
-        </select>
-      </div>
-
-      <div class="mb-3">
-        <label for="modal_password" class="font-semibold">Password</label>
-        <input type="password" name="password" id="modal_password" class="w-full border rounded-lg p-2">
-      </div>
-
-      <div class="mb-3">
-        <label for="modal_password_confirmation" class="font-semibold">Konfirmasi Password</label>
-        <input type="password" name="password_confirmation" id="modal_password_confirmation" class="w-full border rounded-lg p-2">
-      </div>
-
-      <div class="mb-3">
-        <label for="modal_role" class="font-semibold">Role</label>
-        <select name="role" id="modal_role" class="w-full border rounded-lg p-2" required>
-          <option value="jamaah">Jamaah</option>
-          <option value="admin">Admin</option>
-          <option value="finance">Finance</option>
-        </select>
-      </div>
-
-      <div class="flex justify-end gap-3 mt-4">
-        <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-200 rounded-lg">Batal</button>
-        <button type="submit" id="accountFormSubmit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Simpan</button>
-      </div>
-
-    </form>
-  </div>
-</div>
-
-
-<!-- MODAL SET ROLE -->
-<div id="roleModal" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
-  <div class="bg-white w-full max-w-sm rounded-lg p-6 shadow-xl">
-
-    <h2 class="text-xl font-bold text-green-700 mb-4">Set Role</h2>
-
-    <input type="hidden" id="role_user_id">
-
-    <label for="role_select_modal" class="sr-only">Pilih Role</label>
-    <select id="role_select_modal" class="w-full border rounded-lg p-2 mb-4">
-      <option value="jamaah">Jamaah</option>
-      <option value="admin">Admin</option>
-      <option value="finance">Finance</option>
-    </select>
-
-    <div class="flex justify-end gap-3">
-      <button type="button" onclick="closeRoleModal()" class="px-4 py-2 bg-gray-200 rounded-lg">Batal</button>
-      <button type="button" onclick="saveRole()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Simpan</button>
+            <form method="POST"
+                  action="{{ route('admin.account.destroy', $acc->id) }}"
+                  onsubmit="return confirm('Yakin ingin menghapus akun ini?')"
+                  class="w-full">
+                @csrf
+                @method('DELETE')
+                <button class="w-full px-3 py-2 bg-red-600 text-white rounded-lg text-sm">
+                    Hapus
+                </button>
+            </form>
+        </div>
     </div>
-
-  </div>
+    @empty
+    <div class="bg-white shadow rounded-xl p-6 text-center text-gray-500">
+        Belum ada data akun.
+    </div>
+    @endforelse
 </div>
 
+<!-- ================= MODAL ADD / EDIT ================= -->
+<div id="accountModal" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
+    <div class="bg-white w-full max-w-lg rounded-lg shadow-xl p-6">
+        <h2 id="modalTitle" class="text-xl font-bold text-green-700 mb-4">Form Akun</h2>
 
+        <form id="accountForm" method="POST">
+            @csrf
+            <input type="hidden" name="_method" id="formMethod">
+
+            <div class="mb-3">
+                <label class="font-semibold">Nama</label>
+                <input type="text" name="name" id="modal_name" class="w-full border rounded-lg p-2" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="font-semibold">Email</label>
+                <input type="email" name="email" id="modal_email" class="w-full border rounded-lg p-2" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="font-semibold">Telepon</label>
+                <input type="text" name="phone" id="modal_phone" class="w-full border rounded-lg p-2">
+            </div>
+
+            <div class="mb-3">
+                <label class="font-semibold">Gender</label>
+                <select name="gender" id="modal_gender" class="w-full border rounded-lg p-2">
+                    <option value="">Pilih Gender</option>
+                    <option value="Laki-laki">Laki-laki</option>
+                    <option value="Perempuan">Perempuan</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="font-semibold">Password</label>
+                <input type="password" name="password" id="modal_password" class="w-full border rounded-lg p-2">
+            </div>
+
+            <div class="mb-3">
+                <label class="font-semibold">Konfirmasi Password</label>
+                <input type="password" name="password_confirmation" id="modal_password_confirmation" class="w-full border rounded-lg p-2">
+            </div>
+
+            <div class="mb-3">
+                <label class="font-semibold">Role</label>
+                <select name="role" id="modal_role" class="w-full border rounded-lg p-2" required>
+                    <option value="jamaah">Jamaah</option>
+                    <option value="admin">Admin</option>
+                    <option value="finance">Finance</option>
+                </select>
+            </div>
+
+            <div class="flex justify-end gap-3 mt-4">
+                <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-200 rounded-lg">
+                    Batal
+                </button>
+                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                    Simpan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ================= MODAL SET ROLE ================= -->
+<div id="roleModal" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
+    <div class="bg-white w-full max-w-sm rounded-lg p-6 shadow-xl">
+        <h2 class="text-xl font-bold text-green-700 mb-4">Set Role</h2>
+
+        <input type="hidden" id="role_user_id">
+
+        <select id="role_select_modal" class="w-full border rounded-lg p-2 mb-4">
+            <option value="jamaah">Jamaah</option>
+            <option value="admin">Admin</option>
+            <option value="finance">Finance</option>
+        </select>
+
+        <div class="flex justify-end gap-3">
+            <button onclick="closeRoleModal()" class="px-4 py-2 bg-gray-200 rounded-lg">Batal</button>
+            <button onclick="saveRole()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Simpan</button>
+        </div>
+    </div>
+</div>
+
+<!-- ================= SCRIPT ================= -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 const accountModal = document.getElementById('accountModal');
 const roleModal = document.getElementById('roleModal');
 const accountForm = document.getElementById('accountForm');
-const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
-// Utility: ensure hidden _method input exists and set its value
-function ensureMethodInput(value = 'POST') {
-  let methodInput = accountForm.querySelector('input[name="_method"]');
-  if (!methodInput) {
-    methodInput = document.createElement('input');
-    methodInput.type = 'hidden';
-    methodInput.name = '_method';
-    accountForm.prepend(methodInput);
-  }
-  methodInput.value = value;
-  return methodInput;
+function ensureMethod(method) {
+    document.getElementById('formMethod').value = method;
 }
 
 function openAddModal() {
-    document.getElementById('modalTitle').innerText = 'Tambah Akun Baru';
-    accountForm.action = "{{ route('admin.account.store') }}";
-    ensureMethodInput('POST');
     accountForm.reset();
+    accountForm.action = "{{ route('admin.account.store') }}";
+    ensureMethod('POST');
     accountModal.classList.replace('hidden', 'flex');
 }
 
-// openEditModal now expects a JS object (account)
 function openEditModal(acc) {
-    document.getElementById('modalTitle').innerText = 'Edit Akun';
+    accountForm.action = `/admin/account/${acc.id}`;
+    ensureMethod('PUT');
 
-    // set action to update route (PUT)
-    accountForm.action = "/admin/account/" + acc.id;
-    ensureMethodInput('PUT');
-
-    document.getElementById('modal_name').value = acc.name ?? '';
-    document.getElementById('modal_email').value = acc.email ?? '';
-    document.getElementById('modal_phone').value = acc.phone ?? '';
-    document.getElementById('modal_gender').value = acc.gender ?? '';
-    document.getElementById('modal_role').value = acc.role ?? 'jamaah';
-    document.getElementById('modal_password').value = '';
-    document.getElementById('modal_password_confirmation').value = '';
+    modal_name.value = acc.name ?? '';
+    modal_email.value = acc.email ?? '';
+    modal_phone.value = acc.phone ?? '';
+    modal_gender.value = acc.gender ?? '';
+    modal_role.value = acc.role ?? 'jamaah';
 
     accountModal.classList.replace('hidden', 'flex');
 }
@@ -269,85 +266,36 @@ function closeModal() {
     accountModal.classList.replace('flex', 'hidden');
 }
 
-/* ========== ROLE MODAL ========== */
 function openRoleModal(id, role) {
-  document.getElementById('role_user_id').value = id;
-  document.getElementById('role_select_modal').value = role ?? 'jamaah';
-  roleModal.classList.replace('hidden', 'flex');
+    role_user_id.value = id;
+    role_select_modal.value = role;
+    roleModal.classList.replace('hidden', 'flex');
 }
 
 function closeRoleModal() {
-  roleModal.classList.replace('flex', 'hidden');
+    roleModal.classList.replace('flex', 'hidden');
 }
+
 async function saveRole() {
-    const id = document.getElementById('role_user_id').value;
-    const role = document.getElementById('role_select_modal').value;
+    const id = role_user_id.value;
+    const role = role_select_modal.value;
 
-    try {
-        const res = await fetch(`/admin/account/${id}/role`, {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-TOKEN": csrfToken,
-                "Accept": "application/json"
-            },
-            body: JSON.stringify({ role })
-        });
+    const res = await fetch(`/admin/account/${id}/role`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken
+        },
+        body: JSON.stringify({ role })
+    });
 
-        if (!res.ok) {
-            const err = await res.json().catch(() => ({ message: 'Gagal' }));
-
-            Swal.fire({
-                icon: "error",
-                title: "Gagal!",
-                text: err.message || "Gagal mengubah role"
-            });
-
-            return;
-        }
-
-        const data = await res.json();
-
-        Swal.fire({
-            icon: "success",
-            title: "Berhasil!",
-            text: data.message || "Role berhasil diubah",
-            timer: 1500,
-            showConfirmButton: false
-        }).then(() => {
-            closeRoleModal();
-            location.reload();
-        });
-
-    } catch (e) {
-        console.error(e);
-
-        Swal.fire({
-            icon: "error",
-            title: "Error!",
-            text: "Terjadi kesalahan jaringan"
-        });
-    }
+    if (res.ok) location.reload();
 }
 
-
-/* ========== Attach click listeners for Edit buttons (safe JSON parsing) ========== */
-document.addEventListener('DOMContentLoaded', function () {
-  document.querySelectorAll('.edit-btn').forEach(btn => {
-    btn.addEventListener('click', function (e) {
-      const raw = btn.getAttribute('data-account');
-      let acc = null;
-      try {
-        acc = JSON.parse(raw);
-      } catch (err) {
-        console.error('Failed parse account JSON', err, raw);
-        alert('Terjadi kesalahan saat mengambil data akun.');
-        return;
-      }
-      openEditModal(acc);
+document.querySelectorAll('.edit-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        openEditModal(JSON.parse(btn.dataset.account));
     });
-  });
 });
 </script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @endsection

@@ -10,14 +10,11 @@ class CheckRole
     public function handle($request, Closure $next, ...$roles)
     {
         if (!Auth::check()) {
-            return redirect('/login')->with('error', 'Silakan login terlebih dahulu.');
+            return redirect()->route('login');
         }
 
-        $user = Auth::user();
-
-        if (!in_array($user->role, $roles)) {
-            Auth::logout();
-            return redirect('/login')->with('error', 'Akses ditolak.');
+        if (!in_array(Auth::user()->role, $roles)) {
+            abort(403, 'Akses ditolak');
         }
 
         return $next($request);

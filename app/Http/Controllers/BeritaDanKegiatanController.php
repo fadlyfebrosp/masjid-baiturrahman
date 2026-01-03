@@ -3,11 +3,28 @@
 namespace App\Http\Controllers;
 
 use App\Models\BeritaDanKegiatan;
+use App\Models\KontakInformasi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class BeritaDanKegiatanController extends Controller
 {
+    private const DEFAULT_LOGO = 'assets/img/Image-not-found.png';
+    private const STORAGE_PATH = 'storage/';
+    private function getLogo(): string
+    {
+        $kontak = KontakInformasi::first();
+
+        if (
+            $kontak &&
+            $kontak->logo &&
+            Storage::disk('public')->exists($kontak->logo)
+        ) {
+            return asset(self::STORAGE_PATH . $kontak->logo);
+        }
+
+        return asset(self::DEFAULT_LOGO);
+    }
     public function index(Request $request)
     {
         $search = $request->search;
@@ -15,8 +32,8 @@ class BeritaDanKegiatanController extends Controller
         $data = BeritaDanKegiatan::when($search, function ($query) use ($search) {
             $query->where('judul', 'like', "%$search%");
         })->orderBy('id', 'DESC')->get();
-
-        return view('admin.beritadankegiatan.index', compact('data', 'search'));
+        $logo = $this->getLogo();
+        return view('admin.beritadankegiatan.index', compact('data', 'search','logo'));
     }
 
     public function store(Request $request)
@@ -96,20 +113,21 @@ class BeritaDanKegiatanController extends Controller
     }
     public function showPublic()
     {
-        $data = Beritadankegiatan::latest()->paginate(9);
-        return view('pages.berita', compact('data'));
+        $data = BeritaDankegiatan::latest()->paginate(9);
+        $logo = $this->getLogo();
+        return view('pages.berita', compact('data', 'logo'));
     }
 
     public function detail($judul)
     {
         $judul = urldecode($judul);
 
-        $berita = Beritadankegiatan::where('judul', $judul)->firstOrFail();
-        $beritaLainnya = Beritadankegiatan::where('id', '!=', $berita->id)
+        $berita = BeritaDankegiatan::where('judul', $judul)->firstOrFail();
+        $beritaLainnya = BeritaDankegiatan::where('id', '!=', $berita->id)
             ->latest()
             ->take(5)
             ->get();
-
-        return view('pages.detail', compact('berita', 'beritaLainnya'));
+        $logo = $this->getLogo();
+        return view('pages.detail', compact('berita', 'beritaLainnya','logo'));
     }
 }

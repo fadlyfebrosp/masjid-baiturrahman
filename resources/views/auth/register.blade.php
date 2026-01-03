@@ -19,7 +19,7 @@
     <div class="absolute bottom-0 left-0 w-40 h-40 bg-green-100 rounded-tr-full"></div>
 
     <div class="relative flex justify-center mb-4">
-      <img src="{{ asset('assets/img/logo.png') }}" alt="Logo Masjid" class="w-40 h-40 object-contain">
+      <img src="{{ $logo }}" alt="Logo Masjid" class="w-40 h-40 object-contain">
     </div>
 
     <div class="relative text-center mb-6 z-10">

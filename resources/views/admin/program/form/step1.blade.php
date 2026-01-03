@@ -45,8 +45,13 @@
 <!-- Minimal Donasi -->
 <div class="mb-4">
     <label for="min_donasi" class="block text-sm font-semibold mb-1">Minimal Donasi</label>
-    <input id="min_donasi" name="min_donasi" type="number" x-model="form.min_donasi"
-           class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+    <input id="min_donasi"
+       name="min_donasi"
+       type="number"
+       x-model.number="form.min_donasi"
+       @input="generateCustomNominal()"
+       class="w-full border rounded-lg px-3 py-2
+              focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
 </div>
 
 <!-- Custom Nominal -->
@@ -56,11 +61,12 @@
     <div class="grid grid-cols-2 gap-2 mt-2">
         <template x-for="(n,i) in form.custom_nominal" :key="i">
             <input
-                :id="'custom_nominal_' + i"
                 type="number"
                 :name="'custom_nominal['+i+']'"
-                x-model="form.custom_nominal[i]"
-                class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                x-model.number="form.custom_nominal[i]"
+                @input="form.custom_nominal_touched = true"
+                class="w-full border rounded-lg px-3 py-2
+                        focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
         </template>
     </div>
 </fieldset>

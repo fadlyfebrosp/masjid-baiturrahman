@@ -8,7 +8,6 @@ class EnumHelper
 {
     public static function getEnumValues($table, $column)
     {
-        // Query harus STRING, bukan DB::raw()
         $result = DB::select("SHOW COLUMNS FROM `$table` WHERE Field = ?", [$column]);
 
         if (!isset($result[0])) {

@@ -11,7 +11,17 @@ class Program extends Model
 {
     use HasFactory;
     protected $primaryKey = 'id';
-
+    protected $appends = [
+        'foto_url',
+        'sisa_hari',
+    ];
+    public const SUB_ZAKAT = [
+        'fitrah'     => 'Zakat Fitrah',
+        'mal'        => 'Zakat Penghasilan / Mal',
+        'emas'       => 'Zakat Emas',
+        'pertanian'  => 'Zakat Pertanian',
+        'peternakan' => 'Zakat Peternakan',
+    ];
     protected $fillable = [
         'kategori',
         'sub_kategori',
@@ -84,13 +94,7 @@ class Program extends Model
             return null;
         }
 
-        return match ($this->sub_kategori) {
-            'fitrah' => 'Zakat Fitrah',
-            'mal' => 'Zakat Penghasilan / Mal',
-            'emas' => 'Zakat Emas',
-            'pertanian' => 'Zakat Pertanian',
-            'peternakan' => 'Zakat Peternakan',
-            default => ucfirst($this->sub_kategori),
-        };
+        return self::SUB_ZAKAT[$this->sub_kategori]
+            ?? ucfirst($this->sub_kategori);
     }
 }

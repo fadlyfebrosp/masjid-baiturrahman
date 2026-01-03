@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Notifications\ResetPasswordCustom;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 
@@ -49,5 +50,9 @@ class User extends Authenticatable
     public function donasis()
     {
         return $this->hasMany(Donasi::class);
+    }
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPasswordCustom($token));
     }
 }

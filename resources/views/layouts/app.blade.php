@@ -1,62 +1,88 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>@yield('title')</title>
-  <link rel="icon" type="image/png" href="{{ asset('assets/img/icon.png') }}">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindplus/elements@1" type="module"></script>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <style>
-    .no-scrollbar::-webkit-scrollbar {
-        display: none;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    {{-- TITLE --}}
+    <title>@yield('title', 'Masjid Baiturrahman')</title>
+
+    {{-- SEO META --}}
+    <meta name="description" content="@yield('meta_description', 'Website resmi Masjid Baiturrahman. Informasi kegiatan, donasi, zakat, dan berita masjid.')">
+    <meta name="keywords" content="@yield('meta_keywords', 'Masjid Baiturrahman, masjid, donasi, zakat, kegiatan islam')">
+    <meta name="author" content="Masjid Baiturrahman">
+    <meta name="robots" content="index, follow">
+
+    {{-- OPEN GRAPH --}}
+    <meta property="og:title" content="@yield('title', 'Masjid Baiturrahman')">
+    <meta property="og:description" content="@yield('meta_description', 'Website resmi Masjid Baiturrahman')">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:image" content="@yield('meta_image', asset('assets/img/logo1.png'))">
+
+    {{-- TWITTER --}}
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="@yield('title')">
+    <meta name="twitter:description" content="@yield('meta_description')">
+    <meta name="twitter:image" content="@yield('meta_image', asset('assets/img/logo1.png'))">
+
+    {{-- CANONICAL --}}
+    <link rel="canonical" href="{{ url()->current() }}">
+
+    {{-- FAVICON --}}
+    <link rel="icon" type="image/png" href="{{ asset('assets/img/icon.png') }}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindplus/elements@1" type="module"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .boton-elegante {
+        padding: 12px 28px;
+        border: 2px solid #16a34a; /* Tailwind green-600 */
+        background-color: #16a34a;
+        color: #ffffff;
+        font-size: 1.1rem;
+        cursor: pointer;
+        border-radius: 30px;
+        transition: all 0.4s ease;
+        outline: none;
+        position: relative;
+        overflow: hidden;
+        font-weight: bold;
     }
-    .no-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
+
+    .boton-elegante::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(
+        circle,
+        rgba(255, 255, 255, 0.25) 0%,
+        rgba(255, 255, 255, 0) 70%
+        );
+        transform: scale(0);
+        transition: transform 0.5s ease;
     }
-    .boton-elegante {
-    padding: 12px 28px;
-    border: 2px solid #16a34a; /* Tailwind green-600 */
-    background-color: #16a34a;
-    color: #ffffff;
-    font-size: 1.1rem;
-    cursor: pointer;
-    border-radius: 30px;
-    transition: all 0.4s ease;
-    outline: none;
-    position: relative;
-    overflow: hidden;
-    font-weight: bold;
-  }
 
-  .boton-elegante::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(
-      circle,
-      rgba(255, 255, 255, 0.25) 0%,
-      rgba(255, 255, 255, 0) 70%
-    );
-    transform: scale(0);
-    transition: transform 0.5s ease;
-  }
+    .boton-elegante:hover::after {
+        transform: scale(4);
+    }
 
-  .boton-elegante:hover::after {
-    transform: scale(4);
-  }
-
-  .boton-elegante:hover {
-    border-color: #15803d; /* darker green */
-    background: #15803d;
-  }
- </style>
+    .boton-elegante:hover {
+        border-color: #15803d; /* darker green */
+        background: #15803d;
+    }
+    </style>
 </head>
 <body class="antialiased">
 

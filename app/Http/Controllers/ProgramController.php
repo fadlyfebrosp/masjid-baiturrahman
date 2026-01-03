@@ -14,6 +14,22 @@ use App\Traits\LogActivity;
 class ProgramController extends Controller
 {
     use LogActivity;
+    private const DEFAULT_LOGO = 'assets/img/Image-not-found.png';
+    private const STORAGE_PATH = 'storage/';
+    private function getLogo(): string
+    {
+        $kontak = KontakInformasi::first();
+
+        if (
+            $kontak &&
+            $kontak->logo &&
+            Storage::disk('public')->exists($kontak->logo)
+        ) {
+            return asset(self::STORAGE_PATH . $kontak->logo);
+        }
+
+        return asset(self::DEFAULT_LOGO);
+    }
     private function normalizeDate($value)
     {
         if (! $value) {
@@ -255,7 +271,7 @@ class ProgramController extends Controller
             'custom_nominal' => $request->custom_nominal ?? []
         ]);
 
-        return redirect()->route('program.index')->with('success','Program diperbarui');
+        return redirect()->route('admin.program.index')->with('success','Program diperbarui');
     }
 
     // DELETE PROGRAM
@@ -270,31 +286,53 @@ class ProgramController extends Controller
 
         $program->delete();
 
-        return redirect()->route('program.index')->with('success','Program dihapus');
+        return redirect()->route('admin.program.index')->with('success','Program dihapus');
     }
-   public function byKategori($kategori)
+    public function byKategori(Request $request, $kategori)
     {
-        $this->logActivity(request(), 'Melihat program berdasarkan kategori', [
-            'kategori' => $kategori
+        $this->logActivity($request, 'Melihat program berdasarkan kategori', [
+            'kategori' => $kategori,
+            'sub' => $request->sub
         ]);
-        // Normalisasi kategori (zakat → zakat)
+
+        // Normalisasi kategori
         $kategoriNormalized = strtolower($kategori);
+        if (
+            $kategoriNormalized === 'zakat'
+            && $request->filled('sub')
+            && !array_key_exists($request->sub, Program::SUB_ZAKAT)
+        ) {
+            abort(404);
+        }
 
-        // Ambil data program sesuai kategori tanpa case sensitive
-        $data = Program::whereRaw('LOWER(kategori) = ?', [$kategoriNormalized])
-            ->withSum(['donasis as terkumpul' => function ($q) {
-                $q->where('status', 'paid');
-            }], 'nominal')
-            ->withCount(['donasis as jumlah_donasi' => function ($q) {
-                $q->where('status', 'paid');
-            }])
-            ->latest()
-            ->paginate(9);
+        // 🔥 SATU QUERY SAJA
+        $query = Program::query()
+            ->whereRaw('LOWER(kategori) = ?', [$kategoriNormalized])
 
-        // TETAP TAMPIL meskipun $data kosong
+            // 🔥 FILTER SUB ZAKAT
+            ->when(
+                $kategoriNormalized === 'zakat' && $request->filled('sub'),
+                fn ($q) => $q->where('sub_kategori', $request->sub)
+            )
+
+            ->withSum([
+                'donasis as terkumpul' => fn ($q) => $q->where('status', 'paid')
+            ], 'nominal')
+
+            ->withCount([
+                'donasis as jumlah_donasi' => fn ($q) => $q->where('status', 'paid')
+            ])
+
+            ->latest();
+
+        // 🔥 PAGINATION DARI QUERY YANG SAMA
+        $data = $query->paginate(9)->withQueryString();
+        $logo = $this->getLogo();
         return view('program.donasi.index', [
-            'kategori' => ucfirst($kategoriNormalized),
-            'data'     => $data
+            'kategori'  => ucfirst($kategoriNormalized),
+            'data'      => $data,
+            'subZakat'  => Program::SUB_ZAKAT,
+            'logo' => $logo
         ]);
     }
 

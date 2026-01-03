@@ -1,6 +1,14 @@
 @extends('layouts.app')
 
-@section('title', 'Berita & Kegiatan - Masjid Baiturrahman')
+@section('title', 'Berita & Kegiatan | Masjid Baiturrahman')
+
+@section('meta_description')
+Berita dan kegiatan terbaru Masjid Baiturrahman, meliputi kajian, sosial, dan aktivitas keislaman.
+@endsection
+
+@section('meta_keywords')
+berita masjid, kegiatan masjid, kajian islam, masjid baiturrahman
+@endsection
 
 @section('content')
 <!-- Hero Section -->

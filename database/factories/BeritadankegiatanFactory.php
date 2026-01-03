@@ -5,7 +5,7 @@ namespace Database\Factories;
 use App\Models\BeritaDanKegiatan;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class BeritadankegiatanFactory extends Factory
+class BeritaDankegiatanFactory extends Factory
 {
     protected $model = BeritaDanKegiatan::class;
 

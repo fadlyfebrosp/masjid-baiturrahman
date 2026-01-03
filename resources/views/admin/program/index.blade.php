@@ -1,4 +1,3 @@
-{{-- fungsinya untuk nampilin data table --}}
 @extends('admin.components.app')
 
 @section('content')
@@ -10,8 +9,8 @@
      }">
 
     <!-- HEADER + BREADCRUMB -->
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-green-700">
+    <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-3">
+        <h1 class="text-2xl md:text-3xl font-bold text-green-700">
             Program
         </h1>
 
@@ -28,63 +27,46 @@
     </div>
 
     <!-- TOP BAR -->
-    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 mb-6">
 
         <a href="{{ route('admin.program.create') }}"
-           class="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-800">
+           class="px-4 py-2 w-full md:w-auto text-center bg-green-600 text-white rounded-lg shadow hover:bg-green-800">
             + Tambah
         </a>
 
-        <div class="flex items-center gap-3">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
 
-            <div>
+            <!-- DATE RANGE PICKER -->
+            <div class="w-full sm:w-64">
                 <button id="dateRangePickerButton"
                         data-dropdown-toggle="dateRangePicker"
-                        class="px-3 py-2 w-64 border rounded-lg shadow text-left bg-white">
+                        class="px-3 py-2 w-full border rounded-lg shadow text-left bg-white">
                     <span x-text="start ? (start + ' → ' + end) : 'Pilih Rentang Tanggal'"></span>
                 </button>
 
-                <!-- DROPDOWN DATE RANGE -->
                 <div id="dateRangePicker"
-                     class="z-50 hidden bg-white rounded-lg shadow w-72 p-4 mt-2">
+                     class="z-50 hidden bg-white rounded-lg shadow w-full sm:w-72 p-4 mt-2">
 
                     <!-- QUICK SELECT -->
                     <div class="mb-4">
                         <h4 class="font-medium text-sm mb-2">Quick Select</h4>
                         <div class="grid grid-cols-2 gap-2">
-
                             <button class="px-2 py-2 bg-gray-100 rounded"
-                                    @click="
-                                        start = '{{ now()->toDateString() }}';
-                                        end = '{{ now()->toDateString() }}';
-                                    ">
+                                    @click="start = '{{ now()->toDateString() }}'; end = '{{ now()->toDateString() }}';">
                                 Today
                             </button>
-
                             <button class="px-2 py-2 bg-gray-100 rounded"
-                                    @click="
-                                        start = '{{ now()->startOfWeek()->toDateString() }}';
-                                        end = '{{ now()->endOfWeek()->toDateString() }}';
-                                    ">
+                                    @click="start = '{{ now()->startOfWeek()->toDateString() }}'; end = '{{ now()->endOfWeek()->toDateString() }}';">
                                 This Week
                             </button>
-
                             <button class="px-2 py-2 bg-gray-100 rounded"
-                                    @click="
-                                        start = '{{ now()->startOfMonth()->toDateString() }}';
-                                        end = '{{ now()->endOfMonth()->toDateString() }}';
-                                    ">
+                                    @click="start = '{{ now()->startOfMonth()->toDateString() }}'; end = '{{ now()->endOfMonth()->toDateString() }}';">
                                 This Month
                             </button>
-
                             <button class="px-2 py-2 bg-gray-100 rounded"
-                                    @click="
-                                        start = '{{ now()->subMonth()->startOfMonth()->toDateString() }}';
-                                        end = '{{ now()->subMonth()->endOfMonth()->toDateString() }}';
-                                    ">
+                                    @click="start = '{{ now()->subMonth()->startOfMonth()->toDateString() }}'; end = '{{ now()->subMonth()->endOfMonth()->toDateString() }}';">
                                 Last Month
                             </button>
-
                         </div>
                     </div>
 
@@ -109,22 +91,21 @@
                 </div>
             </div>
 
-            <!-- 🔍 SEARCH -->
-            <form>
+            <!-- SEARCH -->
+            <form class="w-full sm:w-auto">
                 <input type="text"
                        name="search"
                        value="{{ $search }}"
                        placeholder="Pencarian"
-                       class="px-3 py-2 border rounded-lg shadow w-48">
+                       class="px-3 py-2 border rounded-lg shadow w-full sm:w-48">
             </form>
 
         </div>
     </div>
 
-    <!-- TABLE -->
-    <div class="bg-white shadow-lg rounded-xl p-4">
-
-        <table class="w-full">
+    <!-- TABLE (Desktop & Tablet) -->
+    <div class="hidden md:block bg-white shadow-lg rounded-xl p-4 overflow-x-auto">
+        <table class="w-full min-w-[800px]">
             <thead>
                 <tr class="border-b bg-gray-50 text-gray-600 text-sm">
                     <th class="py-3 px-4 font-semibold">Gambar</th>
@@ -162,26 +143,26 @@
                     </td>
 
                     <!-- BUTTONS -->
-                    <td class="py-6 px-4 flex gap-3 items-center">
+                    <td class="py-6 px-4 flex flex-col sm:flex-row gap-2">
                         <a href="{{ route('admin.program.edit', $p->id) }}"
-                           class="px-3 py-1 bg-green-600 text-white rounded-lg text-sm shadow hover:bg-green-700">
+                           class="flex-1 px-3 py-1 bg-green-600 text-white rounded-lg text-sm shadow hover:bg-green-700">
                            Edit
                         </a>
 
                         <a href="{{ route('admin.program.show', $p->id) }}"
-                           class="px-3 py-1 bg-green-600 text-white rounded-lg text-sm shadow hover:bg-green-700">
+                           class="flex-1 px-3 py-1 bg-green-600 text-white rounded-lg text-sm shadow hover:bg-green-700">
                            Show
                         </a>
 
                         <form action="{{ route('admin.program.destroy', $p->id) }}"
                               method="POST"
+                              class="flex-1"
                               onsubmit="return confirm('Hapus program ini?')">
                             @csrf @method('DELETE')
-                            <button class="px-3 py-1 bg-green-600 text-white rounded-lg text-sm shadow hover:bg-green-700">
+                            <button class="w-full px-3 py-1 bg-green-600 text-white rounded-lg text-sm shadow hover:bg-green-700">
                                 Hapus
                             </button>
                         </form>
-
                     </td>
 
                 </tr>
@@ -192,7 +173,47 @@
         <div class="mt-4">
             {{ $data->links() }}
         </div>
+    </div>
 
+    <!-- MOBILE CARD VIEW -->
+    <div class="md:hidden space-y-4">
+        @foreach($data as $p)
+            <div class="bg-white shadow-lg rounded-xl p-4">
+                <div class="flex gap-3">
+                    <img alt="" src="{{ $p->foto ? asset('storage/'.$p->foto) : 'https://via.placeholder.com/80' }}"
+                         class="w-16 h-16 rounded object-cover">
+                    <div class="flex-1">
+                        <a href="{{ route('admin.program.edit', $p->id) }}"
+                           class="font-semibold text-blue-600 hover:underline">{{ $p->judul }}</a>
+                        <span class="inline-block mt-1 px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-700">
+                            {{ $p->kategori }}
+                        </span>
+                        <p class="text-gray-800 font-semibold mt-1">
+                            Rp {{ number_format($p->target_dana, 0, ',', '.') }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex gap-2 mt-4 flex-wrap">
+                    <a href="{{ route('admin.program.edit', $p->id) }}"
+                       class="flex-1 bg-green-600 text-white py-2 rounded-lg text-sm text-center">
+                        Edit
+                    </a>
+
+                    <a href="{{ route('admin.program.show', $p->id) }}"
+                       class="flex-1 bg-green-600 text-white py-2 rounded-lg text-sm text-center">
+                        Show
+                    </a>
+
+                    <form action="{{ route('admin.program.destroy', $p->id) }}" method="POST" class="flex-1" onsubmit="return confirm('Hapus program ini?')">
+                        @csrf @method('DELETE')
+                        <button class="w-full bg-green-600 text-white py-2 rounded-lg text-sm">
+                            Hapus
+                        </button>
+                    </form>
+                </div>
+            </div>
+        @endforeach
     </div>
 
 </div>

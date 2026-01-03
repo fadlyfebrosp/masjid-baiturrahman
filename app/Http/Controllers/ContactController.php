@@ -6,6 +6,7 @@ use App\Models\KontakInformasi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Traits\LogActivity;
+use Illuminate\Support\Facades\Storage;
 
 class ContactController extends Controller
 {
@@ -14,10 +15,21 @@ class ContactController extends Controller
     {
         $this->logActivity($request, 'Buka Halaman Hubungi Kami');
 
-        // Ambil 1 data identitas aplikasi
+        // Ambil data kontak
         $kontak = KontakInformasi::first();
 
-        return view('pages.hubungikami', compact('kontak'));
+        // Default logo
+        $logo = asset('assets/img/Image-not-found.png');
+
+        if (
+            $kontak &&
+            $kontak->logo &&
+            Storage::disk('public')->exists($kontak->logo)
+        ) {
+            $logo = asset('storage/' . $kontak->logo);
+        }
+
+        return view('pages.hubungikami', compact('kontak', 'logo'));
     }
     public function send(Request $request)
     {

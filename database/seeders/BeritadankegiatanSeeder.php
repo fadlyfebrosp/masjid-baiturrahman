@@ -4,15 +4,15 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\Beritadankegiatan;
+use App\Models\BeritaDankegiatan;
 
-class BeritadankegiatanSeeder extends Seeder
+class BeritaDanKegiatanSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        Beritadankegiatan::factory(5)->create();
+        BeritaDankegiatan::factory(5)->create();
     }
 }

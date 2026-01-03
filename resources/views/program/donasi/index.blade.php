@@ -1,9 +1,18 @@
 @extends('layouts.app')
 
-@section('title', $kategori . ' - Masjid Baiturrahman')
+@section('title', $kategori . ' | Program Donasi Masjid Baiturrahman')
+
+@section('meta_description')
+Daftar program {{ strtolower($kategori) }} Masjid Baiturrahman. Salurkan donasi, infaq, dan zakat ke program resmi, aman, dan terverifikasi.
+@endsection
+
+@section('meta_keywords')
+{{ strtolower($kategori) }}, donasi {{ strtolower($kategori) }}, zakat online, infaq masjid, masjid baiturrahman
+@endsection
+
+@section('meta_image', asset('assets/img/logo1.png'))
 
 @section('content')
-
 {{-- ================= HEADER ================= --}}
 <div class="bg-green-50 py-8 sm:py-10">
     <div class="container mx-auto px-4 sm:px-6">
@@ -14,61 +23,32 @@
 </div>
 
 {{-- ================= FILTER ZAKAT ================= --}}
-@if ($kategori === 'Zakat')
+@if (strtolower($kategori) === 'zakat')
 <div class="bg-white border-b">
     <div class="container mx-auto px-4 py-4">
         <p class="text-sm font-semibold text-gray-700 mb-3">
             Pilih Jenis Zakat
         </p>
 
-        <div
-            class="
-            flex sm:flex-wrap
-            gap-2
-            overflow-x-auto sm:overflow-visible
-            -mx-4 px-4 sm:mx-0 sm:px-0
-            pb-2
-            scrollbar-hide
-            "
-        >
-            @php
-                $subZakat = [
-                    'fitrah'     => 'Zakat Fitrah',
-                    'mal'        => 'Zakat Mal',
-                    'emas'       => 'Zakat Emas',
-                    'pertanian'  => 'Zakat Pertanian',
-                    'peternakan' => 'Zakat Peternakan',
-                ];
-            @endphp
+        <div class="flex gap-2 overflow-x-auto -mx-4 px-4 pb-2">
 
             {{-- SEMUA --}}
             <a href="{{ route('program.index', ['kategori' => 'zakat']) }}"
-               class="
-               shrink-0
-               px-4 py-2
-               text-xs sm:text-sm
-               rounded-full
-               border
-               font-semibold
-               transition
-               {{ request('sub')
-                    ? 'bg-white text-gray-700 hover:bg-green-50'
-                    : 'bg-green-600 text-white shadow'
+               class="shrink-0 px-4 py-2 text-xs sm:text-sm rounded-full border font-semibold transition
+               {{ request()->missing('sub')
+                    ? 'bg-green-600 text-white shadow'
+                    : 'bg-white text-gray-700 hover:bg-green-50'
                }}">
                 Semua
             </a>
 
-            {{-- SUB --}}
+            {{-- SUB ZAKAT --}}
             @foreach ($subZakat as $key => $label)
-                <a href="{{ route('program.index', ['kategori' => 'zakat', 'sub' => $key]) }}"
-                   class="
-                   shrink-0
-                   px-4 py-2
-                   text-xs sm:text-sm
-                   rounded-full
-                   border
-                   font-semibold
-                   transition
+                <a href="{{ route('program.index', [
+                        'kategori' => 'zakat',
+                        'sub' => $key
+                    ]) }}"
+                   class="shrink-0 px-4 py-2 text-xs sm:text-sm rounded-full border font-semibold transition
                    {{ request('sub') === $key
                         ? 'bg-green-600 text-white shadow'
                         : 'bg-white text-gray-700 hover:bg-green-50'
@@ -76,10 +56,12 @@
                     {{ $label }}
                 </a>
             @endforeach
+
         </div>
     </div>
 </div>
 @endif
+
 
 {{-- ================= LIST PROGRAM ================= --}}
 <section class="bg-white py-6">
@@ -141,6 +123,11 @@
                     <h3 class="font-semibold text-gray-900 line-clamp-2 text-sm sm:text-base min-h-[48px]">
                         {{ $item->judul }}
                     </h3>
+                    @if(!empty($item->sub_kategori))
+                        <p class="text-xs text-gray-500 line-clamp-1">
+                            {{ $item->sub_kategori ?? 'Program Donasi' }}
+                        </p>
+                    @endif
 
                     <div class="text-xs text-gray-600">
                         <span class="text-base font-bold text-gray-900">

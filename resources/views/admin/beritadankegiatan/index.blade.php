@@ -5,12 +5,10 @@
 @section('content')
 <!-- HEADER -->
 <div class="mb-6">
-
-    <!-- BARIS ATAS: TITLE (KIRI) + BREADCRUMB (KANAN) -->
-    <div class="flex items-center justify-between">
+    <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
 
         <!-- TITLE -->
-        <h1 class="text-2xl font-bold text-green-700">
+        <h1 class="text-xl md:text-2xl font-bold text-green-700">
             Berita & Kegiatan
         </h1>
 
@@ -28,17 +26,14 @@
 
     </div>
 
-    <!-- BUTTON DI BAWAH (KIRI) -->
-    <div class="mt-3">
+    <!-- BUTTON -->
+    <div class="mt-4">
         <button onclick="openModal()"
-                class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+            class="w-full md:w-auto bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
             + Tambah
         </button>
     </div>
-
 </div>
-
-
 
 @if (session('success'))
   <div class="bg-green-100 text-green-800 p-3 rounded mb-4">
@@ -46,10 +41,9 @@
   </div>
 @endif
 
-<!-- Tabel Data -->
-<div class="bg-white shadow-lg rounded-xl p-4">
-
-    <table class="w-full">
+<!-- TABLE (Desktop & Tablet) -->
+<div class="hidden md:block bg-white shadow-lg rounded-xl p-4 overflow-x-auto">
+    <table class="w-full min-w-[800px]">
         <thead>
             <tr class="border-b bg-gray-50 text-gray-600 text-sm">
                 <th class="py-3 px-4 font-semibold">Gambar</th>
@@ -93,26 +87,27 @@
                 </td>
 
                 <!-- AKSI -->
-                <td class="py-6 px-4 flex gap-3 items-center">
-
-                    <button
-                        data-item='@json($item)'
-                        onclick="openEdit(this)"
-                        class="px-3 py-1 bg-green-600 text-white rounded-lg text-sm shadow hover:bg-green-700">
-                        Edit
-                    </button>
-
-                    <form action="{{ route('admin.beritadankegiatan.destroy', $item->id) }}"
-                          method="POST"
-                          onsubmit="return confirm('Yakin hapus data ini?')">
-                        @csrf
-                        @method('DELETE')
+                <td class="py-6 px-4">
+                    <div class="flex flex-col sm:flex-row gap-2">
                         <button
-                            class="px-3 py-1 bg-green-600 text-white rounded-lg text-sm shadow hover:bg-green-700">
-                            Hapus
+                            data-item='@json($item)'
+                            onclick="openEdit(this)"
+                            class="flex-1 px-3 py-1 bg-green-600 text-white rounded-lg text-sm shadow hover:bg-green-700">
+                            Edit
                         </button>
-                    </form>
 
+                        <form action="{{ route('admin.beritadankegiatan.destroy', $item->id) }}"
+                              method="POST"
+                              class="flex-1"
+                              onsubmit="return confirm('Yakin hapus data ini?')">
+                            @csrf
+                            @method('DELETE')
+                            <button
+                                class="w-full px-3 py-1 bg-red-600 text-white rounded-lg text-sm shadow hover:bg-red-700">
+                                Hapus
+                            </button>
+                        </form>
+                    </div>
                 </td>
 
             </tr>
@@ -125,11 +120,56 @@
             @endforelse
         </tbody>
     </table>
-
 </div>
+
+<!-- MOBILE CARD VIEW -->
+<div class="md:hidden space-y-4">
+@forelse($data as $item)
+    <div class="bg-white rounded-xl shadow p-4">
+        <div class="flex gap-3">
+            <img
+                src="{{ $item->foto ? asset('storage/'.$item->foto) : 'https://via.placeholder.com/80' }}"
+                class="w-16 h-16 rounded object-cover"
+            >
+            <div class="flex-1">
+                <h3 class="font-semibold text-gray-800">{{ $item->judul }}</h3>
+                <span class="inline-block mt-1 px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-700">
+                    {{ $item->kategori }}
+                </span>
+                <p class="text-sm text-gray-500 mt-1">
+                    {{ \Carbon\Carbon::parse($item->tanggal)->format('d M Y') }}
+                </p>
+            </div>
+        </div>
+
+        <div class="flex gap-2 mt-4">
+            <button
+                data-item='@json($item)'
+                onclick="openEdit(this)"
+                class="flex-1 bg-green-600 text-white py-2 rounded-lg text-sm">
+                Edit
+            </button>
+
+            <form action="{{ route('admin.beritadankegiatan.destroy', $item->id) }}"
+                  method="POST"
+                  class="flex-1"
+                  onsubmit="return confirm('Yakin hapus data ini?')">
+                @csrf
+                @method('DELETE')
+                <button class="w-full bg-red-600 text-white py-2 rounded-lg text-sm">
+                    Hapus
+                </button>
+            </form>
+        </div>
+    </div>
+@empty
+    <p class="text-center text-gray-500">Belum ada data.</p>
+@endforelse
+</div>
+
 <!-- Modal Form Tambah/Edit -->
 <div id="dataModal" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
-  <div class="bg-white w-full max-w-lg rounded-lg shadow-xl p-6 relative border border-gray-200">
+  <div class="bg-white w-full h-full md:h-auto md:max-w-lg rounded-none md:rounded-lg shadow-xl p-6 relative border border-gray-200 overflow-y-auto">
     <h2 id="modalTitle" class="text-xl font-bold text-green-700 mb-4">Tambah Data</h2>
 
     <form id="dataForm" action="{{ route('admin.beritadankegiatan.store') }}" method="POST" enctype="multipart/form-data">
@@ -192,9 +232,9 @@
       </div>
 
       <!-- Tombol Aksi -->
-      <div class="flex justify-end mt-6">
+      <div class="flex flex-col sm:flex-row justify-end mt-6 gap-2">
         <button type="button" onclick="closeModal()"
-          class="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500 transition mr-2">
+          class="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500 transition">
           Batal
         </button>
         <button type="submit"

@@ -7,9 +7,6 @@ use App\Helpers\Setting;
 
 class SettingController extends Controller
 {
-    /* =========================
-     * SECURITY
-     * ========================= */
     public function security()
     {
         $settings = Setting::load();

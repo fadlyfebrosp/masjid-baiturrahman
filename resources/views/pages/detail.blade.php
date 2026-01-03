@@ -1,6 +1,12 @@
 @extends('layouts.app')
 
-@section('title', $berita->judul . ' - Masjid Baiturrahman')
+@section('title', $berita->judul . ' | Masjid Baiturrahman')
+
+@section('meta_description', Str::limit(strip_tags($berita->deskripsi), 155))
+
+@section('meta_keywords', $berita->kategori . ', berita masjid, masjid baiturrahman')
+
+@section('meta_image', asset('storage/' . $berita->foto))
 
 @section('content')
 <!-- Hero Section -->

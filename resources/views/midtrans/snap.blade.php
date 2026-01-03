@@ -1,49 +1,60 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memproses Pembayaran...</title>
+    <title>Pembayaran</title>
 
-    <script
-        type="text/javascript"
-        src="{{ $production ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
-        data-client-key="{{ $clientKey }}">
-    </script>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            snap.pay('{{ $snapToken }}', {
-                onSuccess: function(result){
-                    window.location.href = "/payment/success";
-                },
-                onPending: function(result){
-                    window.location.href = "/payment/pending";
-                },
-                onError: function(result){
-                    window.location.href = "/payment/failed";
-                },
-                onClose: function(){
-                    alert('Anda menutup popup pembayaran.');
-                }
-            });
-        });
-    </script>
-
-    <style>
-        body {
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            height:100vh;
-            font-family:Arial;
-        }
-    </style>
+    @if($isProduction ?? false)
+        <script
+            src="https://app.midtrans.com/snap/snap.js"
+            data-client-key="{{ $clientKey }}">
+        </script>
+    @else
+        <script
+            src="https://app.sandbox.midtrans.com/snap/snap.js"
+            data-client-key="{{ $clientKey }}">
+        </script>
+    @endif
 </head>
-
 <body>
-    <h2>Memproses pembayaran... Mohon tunggu</h2>
-</body>
 
+<script>
+snap.pay('{{ $snapToken }}', {
+
+    onSuccess: function (result) {
+        // pembayaran sukses
+        window.location.href =
+            "{{ route('payment.success', ':reference') }}"
+                .replace(':reference', result.order_id);
+    },
+
+    onPending: function (result) {
+        // pembayaran pending
+        window.location.href =
+            "{{ route('payment.pending', ':reference') }}"
+                .replace(':reference', result.order_id);
+    },
+
+    onError: function (result) {
+        // pembayaran gagal
+        window.location.href =
+            "{{ route('payment.failed', ':reference') }}"
+                .replace(':reference', result.order_id);
+    },
+
+    onClose: function () {
+        /**
+         * User menutup popup Snap
+         * WAJIB tetap bawa reference dari server
+         * agar transaksi bisa dilanjutkan
+         */
+        window.location.href =
+            "{{ route('payment.pending', ':reference') }}"
+                .replace(':reference', '{{ $reference }}');
+    }
+
+});
+</script>
+
+</body>
 </html>

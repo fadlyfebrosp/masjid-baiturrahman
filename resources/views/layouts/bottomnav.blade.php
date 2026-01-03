@@ -39,6 +39,11 @@
             <i class="bi bi-newspaper text-xl"></i>
             Berita
         </a>
+        <!-- HUBUNGI KAMI -->
+        <a href="{{ route('kontak') }}" class="flex flex-col items-center text-xs">
+            <i class="bi bi-telephone text-xl"></i>
+            Kontak
+        </a>
 
         <!-- GUEST -->
         @guest

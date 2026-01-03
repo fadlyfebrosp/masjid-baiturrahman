@@ -7,12 +7,29 @@ function programForm() {
       kategori: '',
       sub_kategori: '',
       min_donasi: 0,
-      custom_nominal: ['10000','20000','50000','100000'],
+      custom_nominal: [0, 0, 0, 0],
+      custom_nominal_touched: false,
       target_dana: '',
-      target_date: '', // <-- YYYY-MM-DD (default native)
+      target_date: '',
       open_goals: false,
       produk_deskripsi: '',
       foto_file: null,
+    },
+    generateCustomNominal() {
+        const min = Number(this.form.min_donasi);
+
+        if (!min || min < 1000) return;
+        if (this.form.custom_nominal_touched) return;
+
+        const generated = [
+            min,
+            min * 2,
+            min * 10,
+            min * 20,
+        ];
+
+        // ISI KE SLOT YANG SUDAH ADA
+        this.form.custom_nominal = generated;
     },
 
     preview: null,
