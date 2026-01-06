@@ -6,8 +6,6 @@ use App\Models\Donasi;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
 class DonasiSuccessMail extends Mailable
@@ -21,9 +19,12 @@ class DonasiSuccessMail extends Mailable
         $kategori = strtolower($this->donasi->program->kategori);
 
         $subject = match ($kategori) {
-            'zakat'  => 'Terima Kasih Telah Menunaikan Zakat',
-            'wakaf'  => 'Terima Kasih Telah Berwakaf',
-            default  => 'Terima Kasih Telah Berinfaq',
+            'zakat'    => 'Terima Kasih Telah Menunaikan Zakat',
+            'infaq'    => 'Terima Kasih Telah Berinfaq',
+            'sedekah'  => 'Terima Kasih Telah Bersedekah',
+            'wakaf'    => 'Terima Kasih Telah Berwakaf',
+            'hibah'    => 'Terima Kasih Telah Memberikan Hibah',
+            default    => 'Terima Kasih Atas Donasi Anda',
         };
 
         return $this->subject($subject)

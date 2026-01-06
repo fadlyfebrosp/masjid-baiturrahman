@@ -63,10 +63,6 @@ class DonasiController extends Controller
         return redirect()->route('donasi.form', [$kategori, $slug]);
     }
 
-    /**
-     * POST
-     * SIMPAN DONASI SAJA (BELUM PAYMENT)
-     */
     public function store(Request $request, $kategori, $slug)
     {
         $validated = $request->validate([

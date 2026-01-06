@@ -27,4 +27,8 @@ class DonasiOffline extends Model
     {
         return $this->belongsTo(Contactdonasioffline::class, 'contactdonasioffline_id');
     }
+    public function donasi()
+    {
+        return $this->belongsTo(Donasi::class, 'donasi_id');
+    }
 }

@@ -12,12 +12,39 @@ tentang masjid, profil masjid, sejarah masjid, masjid baiturrahman
 
 @section('content')
 <!-- Hero Section -->
-    <div class="bg-green-50 py-20 relative overflow-hidden">
-        <div class="relative container mx-auto px-6 md:px-12">
-            <h1 class="text-3xl font-bold text-gray-800 ml-10">Tentang Kami</h1>
-        </div>
-    </div>
+<div class="bg-green-50 py-20 relative overflow-hidden">
+  <div class="relative container mx-auto px-6 md:px-12">
 
+    <!-- Breadcrumb -->
+    <nav class="mb-4" aria-label="Breadcrumb">
+      <ol class="flex items-center text-sm text-gray-600 space-x-2">
+
+        <li class="flex items-center">
+          <a href="{{ url('/') }}"
+             class="flex items-center gap-1 text-green-700 hover:text-green-800 font-medium transition">
+            <i class="bi bi-house-door-fill"></i>
+            <span>Beranda</span>
+          </a>
+        </li>
+
+        <li class="flex items-center text-gray-400">
+          <i class="bi bi-chevron-right text-xs"></i>
+        </li>
+
+        <li class="flex items-center text-gray-800 font-semibold">
+          Tentang Kami
+        </li>
+
+      </ol>
+    </nav>
+
+    <!-- Title -->
+    <h1 class="text-3xl font-bold text-gray-800">
+      Tentang Kami
+    </h1>
+
+  </div>
+</div>
 <!-- Main Content -->
 <section class="bg-white-50 py-16">
   <div class="container mx-auto px-6 md:px-12">

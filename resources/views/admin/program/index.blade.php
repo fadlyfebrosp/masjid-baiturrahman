@@ -35,62 +35,6 @@
         </a>
 
         <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
-
-            <!-- DATE RANGE PICKER -->
-            <div class="w-full sm:w-64">
-                <button id="dateRangePickerButton"
-                        data-dropdown-toggle="dateRangePicker"
-                        class="px-3 py-2 w-full border rounded-lg shadow text-left bg-white">
-                    <span x-text="start ? (start + ' → ' + end) : 'Pilih Rentang Tanggal'"></span>
-                </button>
-
-                <div id="dateRangePicker"
-                     class="z-50 hidden bg-white rounded-lg shadow w-full sm:w-72 p-4 mt-2">
-
-                    <!-- QUICK SELECT -->
-                    <div class="mb-4">
-                        <h4 class="font-medium text-sm mb-2">Quick Select</h4>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button class="px-2 py-2 bg-gray-100 rounded"
-                                    @click="start = '{{ now()->toDateString() }}'; end = '{{ now()->toDateString() }}';">
-                                Today
-                            </button>
-                            <button class="px-2 py-2 bg-gray-100 rounded"
-                                    @click="start = '{{ now()->startOfWeek()->toDateString() }}'; end = '{{ now()->endOfWeek()->toDateString() }}';">
-                                This Week
-                            </button>
-                            <button class="px-2 py-2 bg-gray-100 rounded"
-                                    @click="start = '{{ now()->startOfMonth()->toDateString() }}'; end = '{{ now()->endOfMonth()->toDateString() }}';">
-                                This Month
-                            </button>
-                            <button class="px-2 py-2 bg-gray-100 rounded"
-                                    @click="start = '{{ now()->subMonth()->startOfMonth()->toDateString() }}'; end = '{{ now()->subMonth()->endOfMonth()->toDateString() }}';">
-                                Last Month
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- CUSTOM RANGE -->
-                    <div>
-                        <h4 class="font-medium text-sm mb-2">Custom Range</h4>
-                        <input type="date" x-model="start" class="border rounded px-2 py-1 w-full mb-2">
-                        <input type="date" x-model="end" class="border rounded px-2 py-1 w-full">
-                    </div>
-
-                    <!-- APPLY BUTTON -->
-                    <form method="GET" class="mt-3">
-                        <input type="hidden" name="start_date" :value="start">
-                        <input type="hidden" name="end_date" :value="end">
-
-                        <button type="submit"
-                                class="mt-3 w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700">
-                            Apply
-                        </button>
-                    </form>
-
-                </div>
-            </div>
-
             <!-- SEARCH -->
             <form class="w-full sm:w-auto">
                 <input type="text"
@@ -99,7 +43,6 @@
                        placeholder="Pencarian"
                        class="px-3 py-2 border rounded-lg shadow w-full sm:w-48">
             </form>
-
         </div>
     </div>
 

@@ -35,4 +35,8 @@ class Donasi extends Model
     {
         return $this->hasOne(Transaction::class);
     }
+    public function donasiOffline()
+    {
+        return $this->hasOne(DonasiOffline::class, 'donasi_id');
+    }
 }

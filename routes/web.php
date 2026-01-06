@@ -51,7 +51,11 @@ Route::prefix('profile')->group(function () {
 | PROGRAM DONASI (FRONTEND)
 |--------------------------------------------------------------------------
 */
+Route::get('/program', [ProgramController::class, 'programIndex'])
+    ->name('pages.program.index');
 
+Route::post('/program', [ProgramController::class, 'byKategoriProgram'])
+    ->name('pages.program');
 Route::prefix('program')->group(function () {
     Route::get('{kategori}', [ProgramController::class, 'byKategori'])->name('program.index');
     Route::get('{kategori}/detail/{slug}', [ProgramController::class, 'detail'])->name('program.detail');

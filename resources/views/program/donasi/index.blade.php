@@ -14,14 +14,46 @@ Daftar program {{ strtolower($kategori) }} Masjid Baiturrahman. Salurkan donasi,
 
 @section('content')
 {{-- ================= HEADER ================= --}}
-<div class="bg-green-50 py-8 sm:py-10">
-    <div class="container mx-auto px-4 sm:px-6">
-        <h1 class="text-xl sm:text-2xl font-bold text-gray-800">
-            <i>Program</i> / {{ $kategori }}
-        </h1>
-    </div>
-</div>
+<div class="bg-green-50 py-10 sm:py-12 relative overflow-hidden">
+  <div class="container mx-auto px-4 sm:px-6">
 
+    <!-- Breadcrumb -->
+    <nav class="mb-3" aria-label="Breadcrumb">
+      <ol class="flex flex-wrap items-center text-sm text-gray-600 gap-2">
+
+        <li>
+          <a href="{{ url('/') }}"
+             class="text-green-700 hover:text-green-800 font-medium transition">
+             <i class="bi bi-house-door-fill"></i>
+            Beranda
+          </a>
+        </li>
+
+        <li class="text-gray-400">›</li>
+
+        <li>
+          <a href="{{ url('/program') }}"
+             class="text-green-700 hover:text-green-800 font-medium transition">
+            Program
+          </a>
+        </li>
+
+        <li class="text-gray-400">›</li>
+
+        <li class="text-gray-800 font-semibold">
+          {{ $kategori }}
+        </li>
+
+      </ol>
+    </nav>
+
+    <!-- Title -->
+    <h1 class="text-xl sm:text-2xl font-bold text-gray-800">
+      Program <span class="text-green-700">/ {{ $kategori }}</span>
+    </h1>
+
+  </div>
+</div>
 {{-- ================= FILTER ZAKAT ================= --}}
 @if (strtolower($kategori) === 'zakat')
 <div class="bg-white border-b">

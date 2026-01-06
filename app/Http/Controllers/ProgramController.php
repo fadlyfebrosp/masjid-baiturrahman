@@ -335,6 +335,77 @@ class ProgramController extends Controller
             'logo' => $logo
         ]);
     }
+    public function programIndex(Request $request)
+    {
+        $this->logActivity($request, 'Melihat halaman program');
+
+        $query = Program::query()
+            ->withSum([
+                'donasis as terkumpul' => fn ($q) => $q->where('status', 'paid')
+            ], 'nominal')
+            ->withCount([
+                'donasis as jumlah_donasi' => fn ($q) => $q->where('status', 'paid')
+            ])
+            ->latest();
+
+        $data = $query->paginate(9);
+
+        return view('pages.program', [
+            'kategori' => null,
+            'data'     => $data, // ✅ TIDAK KOSONG LAGI
+            'subZakat' => Program::SUB_ZAKAT,
+            'logo'     => $this->getLogo(),
+        ]);
+    }
+    public function byKategoriProgram(Request $request)
+    {
+        $request->validate([
+            'kategori' => 'required|in:zakat,infaq,sedekah,wakaf,hibah',
+            'sub' => 'nullable|string'
+        ]);
+
+        $kategori = strtolower($request->kategori);
+
+        $this->logActivity($request, 'Melihat program berdasarkan kategori', [
+            'kategori' => $kategori,
+            'sub' => $request->sub
+        ]);
+
+        // Validasi sub zakat
+        if (
+            $kategori === 'zakat'
+            && $request->filled('sub')
+            && !array_key_exists($request->sub, Program::SUB_ZAKAT)
+        ) {
+            abort(404);
+        }
+
+        $query = Program::query()
+            ->whereRaw('LOWER(kategori) = ?', [$kategori])
+
+            ->when(
+                $kategori === 'zakat' && $request->filled('sub'),
+                fn ($q) => $q->where('sub_kategori', $request->sub)
+            )
+
+            ->withSum([
+                'donasis as terkumpul' => fn ($q) => $q->where('status', 'paid')
+            ], 'nominal')
+
+            ->withCount([
+                'donasis as jumlah_donasi' => fn ($q) => $q->where('status', 'paid')
+            ])
+            ->latest();
+
+        $data = $query->paginate(9);
+
+        return view('pages.program', [
+            'kategori' => ucfirst($kategori),
+            'data'     => $data,
+            'subZakat' => Program::SUB_ZAKAT,
+            'logo'     => $this->getLogo(),
+        ]);
+    }
 
     public function detail($kategori, $slug)
     {

@@ -16,16 +16,29 @@
 
         {{-- PROGRAM CARD --}}
         <div id="programCard"
-             class="bg-white rounded-xl shadow p-5 flex gap-4 hidden">
+            class="bg-white rounded-xl shadow p-5 flex gap-4 hidden">
+
             <img id="programFoto"
-                 class="w-24 h-24 rounded-lg object-cover"
-                 src=""
-                 alt="">
+                class="w-24 h-24 rounded-lg object-cover"
+                src=""
+                alt="">
 
             <div class="flex-1">
-                <h4 id="programJudul" class="font-semibold text-lg">judul</h4>
-                <p class="text-sm text-gray-500 mt-2">Sisa Hari</p>
-                <p id="programSisaHari" class="font-semibold"></p>
+                <h4 id="programJudul" class="font-semibold text-lg"></h4>
+
+                {{-- BARIS INFO --}}
+                <div class="flex justify-between items-center mt-3">
+                    {{-- TERKUMPUL (KIRI) --}}
+                    <p class="text-sm text-gray-500">
+                        <span id="programTerkumpul"></span>
+                    </p>
+                    <div>
+                        Sisa Hari: 
+                        <p id="programSisaHari"
+                        class="text-sm font-semibold text-green-600">
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -51,7 +64,6 @@
                 <option value="">Pilih Judul Program</option>
             </select>
 
-            {{-- WAJIB SUBMIT --}}
             <input type="hidden" name="program_id" id="program_id">
         </div>
     </div>
@@ -68,7 +80,7 @@
                    id="contact_id">
 
             <div>
-                <label for="" class="text-sm font-medium">Cari Kontak</label>
+                <label class="text-sm font-medium">Cari Kontak</label>
                 <input type="text"
                        id="searchContact"
                        placeholder="Cari nama / email / nomor"
@@ -79,21 +91,21 @@
                  class="border rounded-lg bg-white shadow hidden max-h-48 overflow-y-auto"></div>
 
             <div>
-                <label for="" class="text-sm font-medium">Email</label>
+                <label class="text-sm font-medium">Email</label>
                 <input type="email"
                        id="email"
                        class="w-full border rounded-lg px-3 py-2 mt-1">
             </div>
 
             <div>
-                <label for="" class="text-sm font-medium">Nomor Telepon</label>
+                <label class="text-sm font-medium">Nomor Telepon</label>
                 <input type="text"
                        id="no_telp"
                        class="w-full border rounded-lg px-3 py-2 mt-1">
             </div>
 
             <div>
-                <label for="" class="text-sm font-medium">Gender</label>
+                <label class="text-sm font-medium">Gender</label>
                 <select id="gender"
                         class="w-full border rounded-lg px-3 py-2 mt-1">
                     <option value="">Pilih</option>
@@ -105,7 +117,7 @@
 
         {{-- NOMINAL --}}
         <div>
-            <label for="" class="text-sm font-medium">Nominal</label>
+            <label class="text-sm font-medium">Nominal</label>
             <input type="number"
                    name="nominal"
                    min="0"
@@ -115,7 +127,7 @@
 
         {{-- METODE --}}
         <div>
-            <label for="" class="text-sm font-medium">Metode Pembayaran</label>
+            <label class="text-sm font-medium">Metode Pembayaran</label>
             <select name="metode_pembayaran"
                     class="w-full border rounded-lg px-3 py-2 mt-1">
                 <option value="CASH">CASH</option>
@@ -127,16 +139,16 @@
 
         {{-- TANGGAL --}}
         <div>
-            <label for="" class="text-sm font-medium">Tanggal Transaksi</label>
+            <label class="text-sm font-medium">Tanggal Transaksi</label>
             <input type="datetime-local"
                    name="tanggal_transaksi"
                    class="w-full border rounded-lg px-3 py-2 mt-1"
                    required>
         </div>
 
-        {{-- ✅ STATUS DONASI --}}
+        {{-- STATUS --}}
         <div>
-            <label for="" class="text-sm font-medium">Status Donasi</label>
+            <label class="text-sm font-medium">Status Donasi</label>
             <select name="status"
                     class="w-full border rounded-lg px-3 py-2 mt-1"
                     required>
@@ -167,6 +179,14 @@
 
 {{-- ================= JAVASCRIPT ================= --}}
 <script>
+function rupiah(n) {
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0
+    }).format(n);
+}
+
 /* ================= PROGRAM ================= */
 const kategori = document.getElementById('kategori');
 const subKategori = document.getElementById('subKategori');
@@ -246,10 +266,13 @@ judulProgram.addEventListener('change', () => {
     if (!opt || !opt.dataset.program) return;
 
     const p = JSON.parse(opt.dataset.program);
-    document.getElementById('programFoto').src =
-        p.foto_url ?? '/assets/img/Image-not-found.png';
+
+    document.getElementById('programFoto').src = p.foto_url;
     document.getElementById('programJudul').innerText = p.judul;
-    document.getElementById('programSisaHari').innerText = p.sisa_hari ?? '-';
+    document.getElementById('programTerkumpul').innerText =
+        `${rupiah(p.terkumpul)} terkumpul dari ${rupiah(p.target_dana)}`;
+    document.getElementById('programSisaHari').innerText = p.sisa_hari;
+
     programId.value = p.id;
     card.classList.remove('hidden');
 });
