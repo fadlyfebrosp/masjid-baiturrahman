@@ -8,7 +8,11 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+<body
+  class="relative min-h-screen bg-cover bg-center bg-no-repeat flex items-start justify-center py-10 overflow-y-auto"
+  style="background-image: url('{{ asset('assets/img/masjid_baiturrahman.jpg') }}');"
+>
+  <div class="absolute inset-0 bg-black/20 backdrop-blur-sm"></div>
 
   <div class="bg-white rounded-2xl shadow-lg w-full max-w-md p-8 relative overflow-hidden">
     <div class="absolute top-0 right-0 w-40 h-40 bg-green-300 rounded-bl-full"></div>

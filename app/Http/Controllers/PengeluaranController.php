@@ -106,7 +106,7 @@ class PengeluaranController extends Controller
             ? 'laporan-pengeluaran-range.pdf'
             : 'laporan-pengeluaran-semua.pdf';
 
-        $pdf = Pdf::loadView('finance.pdf.laporan_pengeluaran', [
+        $pdf = Pdf::loadView('finance.laporan.pdf.laporan_pengeluaran', [
             'data' => $data,
             'total' => $total,
             'periode' => $periode,

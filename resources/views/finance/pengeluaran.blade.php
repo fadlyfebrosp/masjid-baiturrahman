@@ -8,14 +8,27 @@
 <div class="mb-6 space-y-4">
 
   <div class="flex justify-between items-center">
-    <h1 class="text-3xl font-bold text-green-700">Pengeluaran</h1>
+        <h1 class="text-3xl font-bold text-green-700">Pengeluaran</h1>
 
-    <div class="text-sm text-gray-600">
-      <a href="{{ route('finance.dashboard') }}" class="hover:underline">Home</a>
-      <span class="mx-1">></span>
-      <span class="font-semibold text-gray-800">Pengeluaran</span>
+        <div class="text-sm text-gray-600 flex items-center space-x-2">
+            <a href="{{ route('finance.dashboard') }}"
+            class="hover:underline text-gray-600">
+                Home
+            </a>
+
+            <i class="bi bi-chevron-right text-xs"></i>
+
+            <span class="text-gray-500">
+                Master Data
+            </span>
+
+            <i class="bi bi-chevron-right text-xs"></i>
+
+            <span class="font-semibold text-gray-800">
+                Pengeluaran
+            </span>
+        </div>
     </div>
-  </div>
 
   <div class="flex flex-wrap justify-between items-end gap-4">
 

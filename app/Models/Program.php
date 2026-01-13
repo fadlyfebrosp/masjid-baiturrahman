@@ -55,6 +55,11 @@ class Program extends Model
     {
         return $this->hasMany(Donasi::class);
     }
+    public function alokasiDonasi()
+    {
+        return $this->hasMany(AlokasiDonasi::class);
+    }
+
     protected static function booted()
     {
         static::creating(function ($program) {

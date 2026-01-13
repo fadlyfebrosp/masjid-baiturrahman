@@ -30,12 +30,25 @@
     <link rel="canonical" href="{{ url()->current() }}">
 
     {{-- FAVICON --}}
-    <link rel="icon" type="image/png" href="{{ asset('assets/img/icon.png') }}">
+    <link rel="icon" href="{{ asset('assets/img/icon.png') }}" sizes="48x48">
+    <link rel="icon" href="{{ asset('assets/img/icon.png') }}" sizes="192x192">
+    <link rel="apple-touch-icon" href="{{ asset('assets/img/icon.png') }}">
+    <link rel="shortcut icon" href="{{ asset('assets/img/icon.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindplus/elements@1" type="module"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
+        :root {
+            --font-main: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            font-family: var(--font-main);
+            font-size: 16px;
+            line-height: 1.7;
+            color: #374151;
+        }
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
@@ -88,7 +101,7 @@
 
   @include('layouts.navbar')
 
-    <main class="pt-20 pb-20">
+    <main class="bg-white pt-20 pb-20 min-h-screen">
         @yield('content')
     </main>
 

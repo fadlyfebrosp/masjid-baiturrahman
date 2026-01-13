@@ -13,47 +13,43 @@ Daftar program {{ strtolower($kategori) }} Masjid Baiturrahman. Salurkan donasi,
 @section('meta_image', asset('assets/img/logo1.png'))
 
 @section('content')
-{{-- ================= HEADER ================= --}}
-<div class="bg-green-50 py-10 sm:py-12 relative overflow-hidden">
-  <div class="container mx-auto px-4 sm:px-6">
+{{-- ================= HERO DETAIL PROGRAM ================= --}}
+<section class="relative bg-gradient-to-br from-green-600 to-green-800 text-white overflow-hidden">
+    <div class="container mx-auto px-6 md:px-12 py-24">
 
-    <!-- Breadcrumb -->
-    <nav class="mb-3" aria-label="Breadcrumb">
-      <ol class="flex flex-wrap items-center text-sm text-gray-600 gap-2">
+        <!-- Breadcrumb -->
+        <nav class="text-sm opacity-90 mb-3">
+            <a href="{{ url('/') }}" class="hover:underline">
+                Beranda
+            </a>
+            <span class="mx-2">/</span>
 
-        <li>
-          <a href="{{ url('/') }}"
-             class="text-green-700 hover:text-green-800 font-medium transition">
-             <i class="bi bi-house-door-fill"></i>
-            Beranda
-          </a>
-        </li>
+            <a href="{{ url('/program') }}" class="hover:underline">
+                Program
+            </a>
+            <span class="mx-2">/</span>
 
-        <li class="text-gray-400">›</li>
+            <span class="font-medium">
+                {{ $kategori }}
+            </span>
+        </nav>
 
-        <li>
-          <a href="{{ url('/program') }}"
-             class="text-green-700 hover:text-green-800 font-medium transition">
-            Program
-          </a>
-        </li>
+        <!-- Title -->
+        <h1 class="text-4xl md:text-5xl font-bold leading-tight">
+            Program {{ $kategori }}
+        </h1>
 
-        <li class="text-gray-400">›</li>
+        <!-- Subtitle -->
+        <p class="mt-4 max-w-2xl text-lg text-green-100">
+            Program sosial dan donasi Masjid Baiturrahman untuk kategori {{ strtolower($kategori) }}.
+        </p>
 
-        <li class="text-gray-800 font-semibold">
-          {{ $kategori }}
-        </li>
+    </div>
 
-      </ol>
-    </nav>
-
-    <!-- Title -->
-    <h1 class="text-xl sm:text-2xl font-bold text-gray-800">
-      Program <span class="text-green-700">/ {{ $kategori }}</span>
-    </h1>
-
-  </div>
-</div>
+    <!-- Decorative blur -->
+    <div class="absolute -top-24 -right-24 w-96 h-96 bg-green-400 opacity-20 rounded-full blur-3xl"></div>
+    <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-green-300 opacity-20 rounded-full blur-3xl"></div>
+</section>
 {{-- ================= FILTER ZAKAT ================= --}}
 @if (strtolower($kategori) === 'zakat')
 <div class="bg-white border-b">

@@ -1,13 +1,15 @@
 @extends('layouts.app')
 
-@section('title', 'Masjid Baiturrahman | Pusat Ibadah, Donasi & Kegiatan Umat')
+@section('title')
+Masjid Baiturrahman Sindang Barang | Pusat Ibadah, Donasi & Kegiatan Umat
+@endsection
 
 @section('meta_description')
-Masjid Baiturrahman sebagai pusat ibadah, dakwah, donasi, zakat, dan kegiatan keislaman umat.
+Masjid Baiturrahman Sindang Barang adalah pusat ibadah, dakwah, donasi, zakat, infaq, serta kegiatan sosial umat Islam di Sindang Barang.
 @endsection
 
 @section('meta_keywords')
-Masjid Baiturrahman, masjid, donasi masjid, zakat, infaq, kegiatan islam
+Masjid Baiturrahman Sindang Barang, masjid sindang barang, masjid baiturrahman, donasi masjid, zakat, infaq, kegiatan islam
 @endsection
 
 @section('meta_image', asset('assets/img/logo1.png'))

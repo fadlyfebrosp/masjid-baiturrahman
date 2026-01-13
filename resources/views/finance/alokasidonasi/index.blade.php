@@ -1,6 +1,6 @@
 @extends('finance.components.app')
 
-@section('title', 'Pemasukkan')
+@section('title', 'Alokasi Donasi')
 
 @section('content')
 
@@ -8,28 +8,28 @@
 <div class="mb-6 space-y-4">
 
   <!-- JUDUL + BREADCRUMB -->
-    <div class="flex justify-between items-center">
-        <h1 class="text-3xl font-bold text-green-700">Pemasukkan</h1>
+  <div class="flex justify-between items-center">
+    <h1 class="text-3xl font-bold text-green-700">Alokasi Donasi</h1>
 
-        <div class="text-sm text-gray-600 flex items-center space-x-2">
-            <a href="{{ route('finance.dashboard') }}"
-            class="hover:underline text-gray-600">
-                Home
-            </a>
+    <div class="text-sm text-gray-600 flex items-center space-x-2">
+        <a href="{{ route('finance.dashboard') }}"
+        class="hover:underline text-gray-600">
+            Home
+        </a>
 
-            <i class="bi bi-chevron-right text-xs"></i>
+        <i class="bi bi-chevron-right text-xs"></i>
 
-            <span class="text-gray-500">
-                Master Data
-            </span>
+        <span class="text-gray-500">
+            Master Data
+        </span>
 
-            <i class="bi bi-chevron-right text-xs"></i>
+        <i class="bi bi-chevron-right text-xs"></i>
 
-            <span class="font-semibold text-gray-800">
-                Pemasukkan
-            </span>
-        </div>
+        <span class="font-semibold text-gray-800">
+            Alokasi Donasi
+        </span>
     </div>
+  </div>
 
   <!-- ACTION BAR -->
   <div class="flex flex-wrap justify-between items-end gap-4">
@@ -38,36 +38,33 @@
     <button
       onclick="openCreateModal()"
       class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg shadow">
-      + Tambah Pemasukkan
+      + Tambah Alokasi
     </button>
 
-    <!-- RIGHT : DATE RANGE FILTER -->
+    <!-- RIGHT : FILTER -->
     <div class="bg-white rounded-xl shadow p-4">
       <form method="GET" class="flex flex-wrap items-end gap-4">
 
         <div>
-          <label for="" class="text-sm text-gray-600">Dari Tanggal</label>
-          <input type="date"
-                 name="start_date"
+          <label class="text-sm text-gray-600">Dari</label>
+          <input type="date" name="start_date"
                  value="{{ request('start_date') }}"
                  class="border rounded px-3 py-2">
         </div>
 
         <div>
-          <label for="" class="text-sm text-gray-600">Sampai Tanggal</label>
-          <input type="date"
-                 name="end_date"
+          <label class="text-sm text-gray-600">Sampai</label>
+          <input type="date" name="end_date"
                  value="{{ request('end_date') }}"
                  class="border rounded px-3 py-2">
         </div>
 
         <div class="flex gap-2">
-          <button
-            class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded">
+          <button class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded">
             Filter
           </button>
 
-          <a href="{{ route('finance.pemasukkan.index') }}"
+          <a href="{{ route('finance.alokasidonasi.index') }}"
              class="px-4 py-2 border rounded hover:bg-gray-50">
             Reset
           </a>
@@ -77,24 +74,6 @@
     </div>
   </div>
 </div>
-
-<!-- ================= INFO RANGE ================= -->
-@php
-  use Carbon\Carbon;
-@endphp
-
-@if(request('start_date') && request('end_date'))
-<div class="mb-3 text-sm text-gray-600">
-  Menampilkan data dari
-  <strong>
-    {{ Carbon::parse(request('start_date'))->format('d-m-Y') }}
-  </strong>
-  sampai
-  <strong>
-    {{ Carbon::parse(request('end_date'))->format('d-m-Y') }}
-  </strong>
-</div>
-@endif
 
 <!-- ================= ALERT ================= -->
 @if(session('success'))
@@ -110,35 +89,38 @@
       <tr>
         <th class="px-4 py-3">No</th>
         <th class="px-4 py-3">Tanggal</th>
-        <th class="px-4 py-3">Sumber Dana</th>
+        <th class="px-4 py-3">Program</th>
+        <th class="px-4 py-3">Kegiatan</th>
         <th class="px-4 py-3 text-right">Jumlah</th>
         <th class="px-4 py-3">Keterangan</th>
         <th class="px-4 py-3 text-center">Aksi</th>
       </tr>
     </thead>
+
     <tbody class="divide-y">
-      @forelse($data as $item)
+      @forelse($alokasi as $item)
       <tr>
         <td class="px-4 py-3">{{ $loop->iteration }}</td>
         <td class="px-4 py-3">{{ $item->tanggal }}</td>
-        <td class="px-4 py-3">{{ $item->sumber_dana }}</td>
+        <td class="px-4 py-3">{{ $item->program->judul }}</td>
+        <td class="px-4 py-3">{{ $item->nama_kegiatan }}</td>
         <td class="px-4 py-3 text-right font-semibold">
-          Rp {{ number_format($item->jumlah_dana, 0, ',', '.') }}
+          Rp {{ number_format($item->jumlah, 0, ',', '.') }}
         </td>
         <td class="px-4 py-3">{{ $item->keterangan ?? '-' }}</td>
         <td class="px-4 py-3 text-center space-x-2">
           <button onclick='openEditModal(@json($item))'
-                  class="text-blue-600">
+                  class="text-blue-600 hover:underline">
             Edit
           </button>
 
-          <form action="{{ route('finance.pemasukkan.destroy', $item->id) }}"
+          <form action="{{ route('finance.alokasidonasi.destroy', $item->id) }}"
                 method="POST"
                 class="inline">
             @csrf
             @method('DELETE')
-            <button onclick="return confirm('Hapus data?')"
-                    class="text-red-600">
+            <button onclick="return confirm('Hapus alokasi ini?')"
+                    class="text-red-600 hover:underline">
               Hapus
             </button>
           </form>
@@ -146,8 +128,8 @@
       </tr>
       @empty
       <tr>
-        <td colspan="6" class="text-center py-6 text-gray-500">
-          Belum ada data
+        <td colspan="7" class="text-center py-6 text-gray-500">
+          Belum ada data alokasi
         </td>
       </tr>
       @endforelse
@@ -164,34 +146,43 @@
 
     <form id="form"
           method="POST"
-          data-store="{{ route('finance.pemasukkan.store') }}"
-          data-update="{{ url('finance/pemasukkan') }}">
+          data-store="{{ route('finance.alokasidonasi.store') }}"
+          data-update="{{ url('finance/alokasidonasi') }}">
       @csrf
       <input type="hidden" name="_method" id="method">
 
       <div class="mb-3">
-        <label for="" class="text-sm">Tanggal</label>
+        <label class="text-sm">Program</label>
+        <select name="program_id" class="w-full border rounded p-2" required>
+          @foreach($programs as $p)
+            <option value="{{ $p->id }}">{{ $p->judul }}</option>
+          @endforeach
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label class="text-sm">Nama Kegiatan</label>
+        <input type="text" name="nama_kegiatan"
+               class="w-full border rounded p-2" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="text-sm">Tanggal</label>
         <input type="date" name="tanggal"
                class="w-full border rounded p-2" required>
       </div>
 
       <div class="mb-3">
-        <label for="" class="text-sm">Sumber Dana</label>
-        <input type="text" name="sumber_dana"
-               class="w-full border rounded p-2" required>
-      </div>
-
-      <div class="mb-3">
-        <label for="" class="text-sm">Jumlah Dana</label>
+        <label class="text-sm">Jumlah</label>
         <input type="text"
-               id="jumlah_dana_display"
+               id="jumlah_display"
                class="w-full border rounded p-2"
                oninput="formatRupiah(this)" required>
-        <input type="hidden" name="jumlah_dana" id="jumlah_dana">
+        <input type="hidden" name="jumlah" id="jumlah">
       </div>
 
       <div class="mb-3">
-        <label for="" class="text-sm">Keterangan</label>
+        <label class="text-sm">Keterangan</label>
         <textarea name="keterangan"
                   class="w-full border rounded p-2"></textarea>
       </div>
@@ -211,7 +202,7 @@
 <script>
 function openCreateModal() {
   const form = document.getElementById('form');
-  document.getElementById('modalTitle').innerText = 'Tambah Pemasukkan';
+  document.getElementById('modalTitle').innerText = 'Tambah Alokasi Donasi';
   form.action = form.dataset.store;
   document.getElementById('method').value = '';
   form.reset();
@@ -220,16 +211,17 @@ function openCreateModal() {
 
 function openEditModal(data) {
   const form = document.getElementById('form');
-  document.getElementById('modalTitle').innerText = 'Edit Pemasukkan';
+  document.getElementById('modalTitle').innerText = 'Edit Alokasi Donasi';
   form.action = form.dataset.update + '/' + data.id;
   document.getElementById('method').value = 'PUT';
 
+  form.program_id.value = data.program_id;
+  form.nama_kegiatan.value = data.nama_kegiatan;
   form.tanggal.value = data.tanggal;
-  form.sumber_dana.value = data.sumber_dana;
 
-  document.getElementById('jumlah_dana_display').value =
-    data.jumlah_dana.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  document.getElementById('jumlah_dana').value = data.jumlah_dana;
+  document.getElementById('jumlah_display').value =
+    data.jumlah.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  document.getElementById('jumlah').value = data.jumlah;
 
   form.keterangan.value = data.keterangan ?? '';
 
@@ -242,7 +234,7 @@ function closeModal() {
 
 function formatRupiah(input) {
   let value = input.value.replace(/\D/g, '');
-  document.getElementById('jumlah_dana').value = value;
+  document.getElementById('jumlah').value = value;
   input.value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 </script>

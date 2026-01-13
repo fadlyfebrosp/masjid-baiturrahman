@@ -3,166 +3,387 @@
 @section('title', 'Tentang Kami | Masjid Baiturrahman')
 
 @section('meta_description')
-Profil Masjid Baiturrahman, sejarah, visi misi, dan peran masjid sebagai pusat ibadah dan kegiatan umat.
+Masjid Baiturrahman adalah pusat ibadah, pembinaan umat, dan kepedulian sosial yang dikelola oleh Dewan Kemakmuran Masjid.
 @endsection
 
 @section('meta_keywords')
-tentang masjid, profil masjid, sejarah masjid, masjid baiturrahman
+tentang kami masjid, struktur dkm, pengurus masjid, masjid baiturrahman
 @endsection
+<style>
+/* =====================
+   TYPOGRAPHY SYSTEM
+   ===================== */
 
+.section-title {
+    font-size: 1.5rem;        /* 24px */
+    font-weight: 700;
+    color: #047857;
+    margin-bottom: 1rem;
+    letter-spacing: -0.01em;
+}
+
+h3 {
+    font-size: 1.125rem;      /* 18px */
+    font-weight: 600;
+    color: #047857;
+}
+
+p, li {
+    font-size: 0.95rem;       /* 15px */
+    line-height: 1.7;
+    color: #374151;
+}
+
+/* =====================
+   CARD & BOX
+   ===================== */
+
+.card {
+    background: white;
+    padding: 32px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,.05);
+}
+
+.box {
+    background: #ecfdf5;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* =====================
+   ORGANIZATION STRUCTURE
+   ===================== */
+
+.org-box {
+    background: #ecfdf5;
+    border: 1px solid #bbf7d0;
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+    box-shadow: 0 6px 15px rgba(0,0,0,.04);
+}
+
+.org-title {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #047857;
+    margin-bottom: 4px;
+}
+
+.org-name {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #065f46;
+}
+
+.org-sub {
+    display: block;
+    font-size: 0.85rem;
+    color: #374151;
+}
+
+/* =====================
+   NAV / SIDEBAR
+   ===================== */
+
+aside a {
+    font-size: 0.9rem;
+}
+</style>
 @section('content')
-<!-- Hero Section -->
-<div class="bg-green-50 py-20 relative overflow-hidden">
-  <div class="relative container mx-auto px-6 md:px-12">
 
-    <!-- Breadcrumb -->
-    <nav class="mb-4" aria-label="Breadcrumb">
-      <ol class="flex items-center text-sm text-gray-600 space-x-2">
+<!-- HERO -->
+<section class="relative bg-gradient-to-br from-green-600 to-green-800 text-white">
+    <div class="container mx-auto px-6 md:px-12 py-24">
+        <nav class="text-sm mb-4 opacity-90">
+            <a href="{{ url('/') }}" class="hover:underline">Beranda</a>
+            <span class="mx-2">/</span>
+            <span class="font-semibold">Tentang Kami</span>
+        </nav>
 
-        <li class="flex items-center">
-          <a href="{{ url('/') }}"
-             class="flex items-center gap-1 text-green-700 hover:text-green-800 font-medium transition">
-            <i class="bi bi-house-door-fill"></i>
-            <span>Beranda</span>
-          </a>
-        </li>
+        <h1 class="text-4xl md:text-5xl font-bold leading-tight">
+            Masjid, Umat, dan Amanah
+        </h1>
+        <p class="mt-5 max-w-2xl text-lg text-green-100">
+            Masjid Baiturrahman dikelola dengan amanah melalui struktur Dewan Kemakmuran
+            Masjid untuk melayani ibadah, dakwah, dan kepedulian sosial umat.
+        </p>
+    </div>
+</section>
 
-        <li class="flex items-center text-gray-400">
-          <i class="bi bi-chevron-right text-xs"></i>
-        </li>
+<!-- CONTENT -->
+<section class="py-16">
+    <div class="container mx-auto px-6 md:px-12">
+        <div class="grid md:grid-cols-4 gap-10">
 
-        <li class="flex items-center text-gray-800 font-semibold">
-          Tentang Kami
-        </li>
-
-      </ol>
-    </nav>
-
-    <!-- Title -->
-    <h1 class="text-3xl font-bold text-gray-800">
-      Tentang Kami
-    </h1>
-
-  </div>
-</div>
-<!-- Main Content -->
-<section class="bg-white-50 py-16">
-  <div class="container mx-auto px-6 md:px-12">
-    <div class="grid md:grid-cols-4 gap-8">
-        <!-- Sidebar -->
-        <div
-        x-data="{ open: true }"
-        class="bg-white shadow rounded-xl p-6 h-fit md:sticky md:top-10 md:self-start"
-        >
-        <!-- Tombol utama -->
-        <button
-            @click="open = !open"
-            class="bg-white flex justify-between items-center w-full text-left font-semibold text-gray-800 hover:text-green-700 focus:outline-none"
-        >
-            <span class="text-green-700">Tentang Kami</span>
-            <svg
-            :class="open ? 'rotate-180 text-green-600' : 'rotate-0'"
-            xmlns="http://www.w3.org/2000/svg"
-            class="w-5 h-5 transform transition-transform duration-200"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
+            <!-- SIDEBAR -->
+            <aside
+                x-data="{ open: true }"
+                class="border border-green-300 rounded-2xl overflow-hidden h-fit md:sticky md:top-24 bg-white"
             >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-        </button>
 
-        <!-- Dropdown isi -->
-        <div x-show="open" x-transition class="mt-4 border-t pt-3">
-            <ul class="space-y-2 text-gray-700 text-sm">
-            <li>
-                <a href="#tentang"
-                @click.prevent="document.querySelector('#tentang').scrollIntoView({ behavior: 'smooth' })"
-                class="hover:text-green-600 cursor-pointer">
-                1. Tentang Masjid Baiturrahman
-                </a>
-            </li>
-            <li>
-                <a href="#tujuan"
-                @click.prevent="document.querySelector('#tujuan').scrollIntoView({ behavior: 'smooth' })"
-                class="hover:text-green-600 cursor-pointer">
-                2. Tujuan
-                </a>
-            </li>
-            <li>
-                <a href="#peran"
-                @click.prevent="document.querySelector('#peran').scrollIntoView({ behavior: 'smooth' })"
-                class="hover:text-green-600 cursor-pointer">
-                3. Peran dan Fungsi
-                </a>
-            </li>
-            </ul>
-        </div>
-        </div>
+                <!-- HEADER HIJAU -->
+                <button
+                    @click="open = !open"
+                    class="w-full flex items-center justify-between px-5 py-4 bg-green-700 text-white font-semibold"
+                >
+                    <span>Tentang Kami</span>
 
+                    <svg
+                        class="w-5 h-5 transition-transform duration-300"
+                        :class="open ? 'rotate-180' : ''"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        viewBox="0 0 24 24"
+                    >
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
 
-        <!-- Content -->
-        <div class="md:col-span-3 space-y-10">
-        <!-- Tentang -->
-        <div id="tentang" class="bg-white rounded-xl shadow p-6">
-            <h3 class="text-xl font-bold text-green-700 mb-4">Tentang Masjid Baiturrahman</h3>
-            <div class="flex flex-col md:flex-row items-center md:items-start gap-6">
-                <!-- Gambar -->
-                <img src="{{ asset('assets/img/logo1.png') }}" alt="Masjid Baiturrahman"
-                    class="w-32 h-32 object-contain md:w-40 md:h-40">
+                <!-- ISI ACCORDION -->
+                <div x-show="open" x-transition class="px-5 py-4">
+                    <ol class="list-decimal pl-4 space-y-3 text-gray-800 text-sm">
 
-                <!-- Deskripsi -->
-                <p class="text-gray-700 leading-relaxed text-lg md:text-xl text-justify">
-                Masjid Baiturrahman merupakan salah satu sarana ibadah yang berfungsi
-                sebagai tempat pembinaan umat dan wadah kegiatan keagamaan. Masjid ini berdiri
-                sebagai pusat kegiatan dakwah, pendidikan, serta sosial yang melibatkan seluruh
-                lapisan masyarakat sekitar.
-                </p>
+                        <li>
+                            <a href="#tentang" class="hover:text-green-700 transition">
+                                Tentang Masjid Baiturrahman
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#nilai" class="hover:text-green-700 transition">
+                                Tujuan
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#peran" class="hover:text-green-700 transition">
+                                Peran dan Fungsi
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#struktur" class="hover:text-green-700 transition">
+                                Struktur DKM
+                            </a>
+                        </li>
+
+                    </ol>
+                </div>
+
+            </aside>
+
+            <!-- MAIN -->
+            <div class="md:col-span-3 space-y-12">
+
+                <!-- TENTANG -->
+                <section id="tentang" class="card">
+                    <h2 class="section-title">Tentang Masjid Baiturrahman</h2>
+                    <p class="text-gray-700 leading-relaxed text-justify">
+                        Masjid Baiturrahman hadir sebagai ruang ibadah, pembinaan,
+                        dan kebersamaan umat. Setiap aktivitasnya diarahkan untuk
+                        memperkuat hubungan kepada Allah SWT sekaligus membangun
+                        kepedulian sosial antar sesama.
+                    </p>
+                </section>
+
+                <!-- NILAI -->
+                <section id="nilai" class="card">
+                    <h2 class="section-title">Nilai dan Tujuan</h2>
+                    <ul class="grid md:grid-cols-2 gap-4 text-gray-700">
+                        <li class="box">Spiritualitas dan ketakwaan</li>
+                        <li class="box">Edukasi dan pembinaan umat</li>
+                        <li class="box">Kepedulian sosial</li>
+                        <li class="box">Ukhuwah Islamiyah</li>
+                    </ul>
+                </section>
+
+                <!-- PERAN -->
+                <section id="peran" class="card">
+                    <h2 class="section-title">Peran dan Fungsi</h2>
+                    <ol class="list-decimal pl-5 text-gray-700 space-y-2">
+                        <li>Pusat ibadah dan dakwah</li>
+                        <li>Pusat pembinaan generasi muda</li>
+                        <li>Pusat kegiatan sosial dan kemasyarakatan</li>
+                        <li>Pusat pengelolaan zakat, infak, dan sedekah</li>
+                    </ol>
+                </section>
+
+                <!-- STRUKTUR DKM -->
+                <section id="struktur" class="card">
+                    <h2 class="section-title text-center">
+                        Struktur Pengurus Dewan Kemakmuran Masjid<br>
+                        Masjid Baiturrahman 2024
+                    </h2>
+
+                    <!-- LEVEL ATAS -->
+                    <div class="flex justify-center mt-10">
+                        <div class="org-box">
+                            <span class="org-title">Ketua DKM</span>
+                            <span class="org-name">Denny Rachmat Mustopa</span>
+                        </div>
+                    </div>
+
+                    <!-- SEKRETARIS & BENDAHARA -->
+                    <div class="flex justify-center gap-10 mt-8 flex-wrap">
+                        <div class="org-box">
+                            <span class="org-title">Sekretaris</span>
+                            <span class="org-name">Denny Herdiansyah</span>
+                        </div>
+
+                        <div class="org-box">
+                            <span class="org-title">Bendahara</span>
+                            <span class="org-name">Agus Ruswandi</span>
+                            <span class="org-sub">H. Ruyani</span>
+                        </div>
+                    </div>
+
+                    <!-- PENASEHAT & PENGAWAS -->
+                    <div class="grid md:grid-cols-2 gap-6 mt-10">
+                        <div class="org-box">
+                            <span class="org-title">Penasehat</span>
+                            <span class="org-sub">M. Soleh</span>
+                            <span class="org-sub">H. Aan Kardiana</span>
+                            <span class="org-sub">H. Ikin</span>
+                        </div>
+
+                        <div class="org-box">
+                            <span class="org-title">Pengawas</span>
+                            <span class="org-sub">Rohim Sugandi</span>
+                            <span class="org-sub">Mista</span>
+                            <span class="org-sub">H. Mangku</span>
+                        </div>
+                    </div>
+
+                    <!-- BIDANG-BIDANG -->
+                    <div class="mt-12">
+                        <h3 class="text-lg font-semibold text-green-700 mb-6 text-center">
+                            Bidang & Seksi
+                        </h3>
+
+                        <div class="grid md:grid-cols-3 gap-6 text-sm">
+
+                            <div class="org-box">
+                                <span class="org-title">Humas</span>
+                                <span class="org-sub">Rudi Cahyadi</span>
+                                <span class="org-sub">Tri Rujio</span>
+                                <span class="org-sub">M. Ali</span>
+                                <span class="org-sub">O. Abdurroihim</span>
+                            </div>
+
+                            <div class="org-box">
+                                <span class="org-title">Dakwah & Tarbiyah</span>
+                                <span class="org-sub">H. M. Yusup Walid</span>
+                            </div>
+
+                            <div class="org-box">
+                                <span class="org-title">Bidang Ibadah</span>
+                                <span class="org-sub">Mad Tamim</span>
+                                <span class="org-sub">Dede</span>
+                                <span class="org-sub">Roni</span>
+                                <span class="org-sub">Rosidin</span>
+                            </div>
+
+                            <div class="org-box">
+                                <span class="org-title">Sosial & Kemasyarakatan</span>
+                                <span class="org-sub">Enjang</span>
+                                <span class="org-sub">Asep Doni</span>
+                            </div>
+
+                            <div class="org-box">
+                                <span class="org-title">Pengembangan Bisnis</span>
+                                <span class="org-sub">Gunawan</span>
+                                <span class="org-sub">Juhana</span>
+                            </div>
+
+                            <div class="org-box">
+                                <span class="org-title">Infrastruktur & Pemeliharaan</span>
+                                <span class="org-sub">Otong Musa</span>
+                                <span class="org-sub">Aip Nurohman</span>
+                                <span class="org-sub">Herman Hermawan</span>
+                                <span class="org-sub">Cece Badrudin</span>
+                                <span class="org-sub">Choerulloh</span>
+                            </div>
+
+                            <div class="org-box">
+                                <span class="org-title">Kepemudaan</span>
+                                <span class="org-sub">Awaludin</span>
+                                <span class="org-sub">Ganda Supriatna</span>
+                                <span class="org-sub">Mahmur</span>
+                                <span class="org-sub">Yusep Ilmi</span>
+                            </div>
+
+                            <div class="org-box">
+                                <span class="org-title">Umahat</span>
+                                <span class="org-sub">Ibu Ade</span>
+                            </div>
+
+                        </div>
+                    </div>
+                </section>
+
             </div>
         </div>
-
-        <!-- Tujuan -->
-        <div id="tujuan" class="bg-white rounded-xl shadow p-6">
-            <h3 class="text-xl font-bold text-green-700 mb-4">Tujuan</h3>
-            <p class="text-gray-700 mb-3">
-            Tujuan Masjid Baiturrahman antara lain:
-            </p>
-            <ul class="pl-2 text-gray-700 space-y-3 bg-green-50 rounded-lg p-5">
-                <li class="flex items-start gap-2">
-                    <i class="bi bi-check-circle-fill text-green-600 relative top-0.5"></i>
-                    <span>Mengembangkan dan meningkatkan pembinaan umat dalam rangka turut aktif beribadah.</span>
-                </li>
-                <li class="flex items-start gap-2">
-                    <i class="bi bi-check-circle-fill text-green-600 relative top-0.5"></i>
-                    <span>Meningkatkan peran masjid sebagai wadah pemersatu umat dan pusat ibadah.</span>
-                </li>
-                <li class="flex items-start gap-2">
-                    <i class="bi bi-check-circle-fill text-green-600 relative top-0.5"></i>
-                    <span>Meningkatkan kualitas umat Islam dan ketaqwaan kepada Allah SWT.</span>
-                </li>
-            </ul>
-        </div>
-
-        <!-- Peran dan Fungsi -->
-        <div id="peran" class="bg-white rounded-xl shadow p-6">
-            <h3 class="text-xl font-bold text-green-700 mb-4">Peran dan Fungsi</h3>
-            <p class="text-gray-700 mb-3">
-            Masjid Baiturrahman berperan sebagai pusat kegiatan dan informasi umat Islam,
-            baik bagi masyarakat sekitar maupun warga kampus.
-            </p>
-            <ul class="list-decimal pl-6 text-gray-700 space-y-2">
-            <li>Pusat ibadah dalam rangka mewujudkan hubungan manusia dengan Allah.</li>
-            <li>Wadah dakwah Islamiyah, baik bil hal, bil lisan, dan bil kitabah.</li>
-            <li>Wadah pembinaan sosial, politik, hukum, dan budaya masyarakat Islam.</li>
-            <li>Wadah kegiatan keislaman dan dakwah bagi generasi muda Islam.</li>
-            <li>Wadah pembinaan ketahanan fisik dan mental masyarakat.</li>
-            <li>Wadah penyaluran peran serta dalam pembinaan generasi Islam.</li>
-            <li>Wadah penerangan dan informasi keislaman.</li>
-            <li>Wadah untuk memperkuat ukhuwah umat berlandaskan syari’ah.</li>
-            </ul>
-        </div>
-        </div>
     </div>
-  </div>
 </section>
+
+<style>
+.nav-link {
+    display:block;
+    padding:8px 12px;
+    border-radius:8px;
+}
+.nav-link:hover {
+    background:#ecfdf5;
+    color:#047857;
+}
+.card {
+    background:white;
+    padding:32px;
+    border-radius:16px;
+    box-shadow:0 10px 25px rgba(0,0,0,.05);
+}
+.section-title {
+    font-size:1.5rem;
+    font-weight:700;
+    color:#047857;
+    margin-bottom:1rem;
+}
+.box {
+    background:#ecfdf5;
+    padding:12px;
+    border-radius:10px;
+}
+.org-box {
+    background: #ecfdf5;
+    border: 1px solid #bbf7d0;
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+    box-shadow: 0 6px 15px rgba(0,0,0,.04);
+}
+.org-title {
+    display: block;
+    font-weight: 700;
+    color: #047857;
+    margin-bottom: 6px;
+}
+.org-name {
+    display: block;
+    font-weight: 600;
+    color: #065f46;
+}
+.org-sub {
+    display: block;
+    color: #374151;
+    font-size: 0.85rem;
+}
+</style>
+
 @endsection

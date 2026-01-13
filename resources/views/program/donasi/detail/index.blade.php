@@ -1,11 +1,55 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $item->judul }}</title>
 
+    {{-- =========================
+         PHP PREPARE OG DATA
+    ========================= --}}
+    @php
+        use Illuminate\Support\Str;
+
+        $ogTitle = $item->judul;
+
+        $ogDescription = $item->deskripsi
+            ? Str::limit(
+                trim(preg_replace('/\s+/', ' ', strip_tags($item->deskripsi))),
+                160
+            )
+            : 'Mari berdonasi untuk ' . $item->judul . '. Sedikit dari kita, berarti besar bagi mereka.';
+
+        $ogImage = $item->foto
+            ? asset('storage/' . $item->foto)
+            : asset('assets/img/Image-not-found.png');
+
+        $ogUrl = url()->current();
+    @endphp
+
+    <title>{{ $ogTitle }}</title>
+
+    {{-- =========================
+         OPEN GRAPH META
+    ========================= --}}
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ $ogTitle }}">
+    <meta property="og:description" content="{{ $ogDescription }}">
+    <meta property="og:url" content="{{ $ogUrl }}">
+    <meta property="og:image" content="{{ $ogImage }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    {{-- =========================
+         TWITTER CARD
+    ========================= --}}
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $ogTitle }}">
+    <meta name="twitter:description" content="{{ $ogDescription }}">
+    <meta name="twitter:image" content="{{ $ogImage }}">
+
+    {{-- =========================
+         ASSETS
+    ========================= --}}
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
@@ -39,6 +83,7 @@
         nominal:0,
         minNominal: {{ $item->min_donasi }},
         custom: {{ json_encode($item->custom_nominal ?? []) }},
+        isExpired: {{ $isExpired ? 'true' : 'false' }},
         /* =====================
            DRAG STATE (INI BARU)
         ====================== */
@@ -69,6 +114,10 @@
         donasiSekarang(){
             if (this.nominal < this.minNominal) {
                 alert('Nominal minimal donasi adalah Rp ' + this.minNominal.toLocaleString('id-ID'));
+                return;
+            }
+            if (this.isExpired) {
+                alert('Mohon maaf, waktu donasi telah berakhir.');
                 return;
             }
             document.getElementById('formDonasi').submit();
@@ -145,9 +194,19 @@
 
         <!-- BUTTON -->
         <button
-            class="w-full py-3 bg-green-600 text-white rounded-lg font-semibold"
-            @click="openModal = true">
-            Infaq Sekarang!
+            class="w-full py-3 rounded-lg font-semibold transition"
+            :class="isExpired
+                ? 'bg-gray-400 text-gray-700 cursor-not-allowed'
+                : 'bg-green-600 text-white hover:bg-green-700'"
+            :disabled="isExpired"
+            @click="!isExpired && (openModal = true)"
+        >
+            <template x-if="!isExpired">
+                <span>Infaq Sekarang!</span>
+            </template>
+            <template x-if="isExpired">
+                <span>Donasi Telah Berakhir</span>
+            </template>
         </button>
 
     </div>
@@ -335,16 +394,56 @@
     <!-- ============================
          FOOTER BUTTON
     ============================= -->
-    <div class="border-t bg-gray-50 p-4 flex gap-3">
-        <button
-            class="flex-1 py-3 border rounded-lg"
-            @click="openShare = true">
-            Share
-        </button>
-        <button class="flex-1 py-3 bg-green-600 text-white rounded-lg font-semibold"
-                @click="openModal = true">
-            Infaq Sekarang!
-        </button>
+    <div class="border-t bg-white p-4">
+        <div class="flex gap-3">
+
+            <!-- SHARE -->
+            <button
+                class="flex items-center gap-2 px-4 py-3
+                       border border-green-200 rounded-xl
+                       text-green-700 font-medium
+                       hover:bg-green-50 hover:text-green-800
+                       transition"
+                @click="openShare = true"
+            >
+                <!-- ICON SHARE -->
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     class="w-5 h-5"
+                     fill="none"
+                     viewBox="0 0 24 24"
+                     stroke="currentColor">
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M15 8a3 3 0 10-2.83-4H12a3 3 0 103 3
+                             M9 16a3 3 0 10-2.83-4H6a3 3 0 103 3
+                             M15 20a3 3 0 10-2.83-4H12a3 3 0 103 3"/>
+                </svg>
+
+                <span>Bagikan</span>
+            </button>
+
+            <!-- DONASI -->
+            <button
+                class="flex-1 py-3 rounded-xl font-semibold text-lg
+                    shadow-md transition-all duration-200"
+                :class="isExpired
+                    ? 'bg-gray-400 text-gray-700 cursor-not-allowed'
+                    : 'bg-green-600 text-white hover:bg-green-700'"
+                    text-white hover:from-green-600 hover:to-green-700
+                    active:scale-[0.98]'"
+                :disabled="isExpired"
+                @click="!isExpired && (openModal = true)"
+            >
+                <template x-if="!isExpired">
+                    <span>Infaq Sekarang</span>
+                </template>
+                <template x-if="isExpired">
+                    <span>Donasi Telah Berakhir</span>
+                </template>
+            </button>
+
+        </div>
     </div>
 
     <!-- ======================================================

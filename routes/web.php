@@ -7,6 +7,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\AlokasiDonasiController;
 use App\Http\Controllers\ContactDonasiOfflineController;
 use App\Http\Controllers\BeritaDanKegiatanController;
 use App\Http\Controllers\ContactController;
@@ -244,6 +245,8 @@ Route::prefix('finance')
             ->name('pengeluaran.update');
         Route::delete('/pengeluaran/{id}', [PengeluaranController::class, 'destroy'])
             ->name('pengeluaran.destroy');
+        Route::resource('alokasidonasi', AlokasiDonasiController::class)
+            ->except(['create', 'edit']);
 
         Route::get('/laporangabungan/laporan', [PemasukkanController::class, 'laporanGabungan'])
             ->name('laporan.laporankeuangan');

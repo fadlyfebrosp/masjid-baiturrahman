@@ -12,12 +12,33 @@ berita masjid, kegiatan masjid, kajian islam, masjid baiturrahman
 
 @section('content')
 <!-- Hero Section -->
-<div class="bg-green-50 py-16 relative overflow-hidden">
-  <div class="container mx-auto px-6 md:px-12">
-    <h1 class="text-3xl font-bold text-gray-800">Berita & Kegiatan</h1>
-    <p class="text-gray-600 mt-2">Kumpulan berita dan kegiatan terbaru Masjid Baiturrahman</p>
-  </div>
-</div>
+<section class="relative bg-gradient-to-br from-green-600 to-green-800 text-white overflow-hidden">
+    <div class="container mx-auto px-6 md:px-12 py-24">
+
+        <!-- Breadcrumb -->
+        <nav class="text-sm mb-4 opacity-90">
+            <a href="{{ url('/') }}" class="hover:underline">Beranda</a>
+            <span class="mx-2">/</span>
+            <span class="font-semibold">Berita & Kegiatan</span>
+        </nav>
+
+        <!-- Title -->
+        <h1 class="text-4xl md:text-5xl font-bold leading-tight">
+            Berita & Kegiatan
+        </h1>
+
+        <!-- Subtitle -->
+        <p class="mt-5 max-w-2xl text-lg text-green-100">
+            Informasi terbaru seputar kegiatan, dakwah, dan aktivitas
+            Masjid Baiturrahman dalam melayani umat.
+        </p>
+
+    </div>
+
+    <!-- Decorative Blur -->
+    <div class="absolute -top-24 -right-24 w-96 h-96 bg-green-400 opacity-20 rounded-full blur-3xl"></div>
+    <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-green-300 opacity-20 rounded-full blur-3xl"></div>
+</section>
 
 <!-- Filter Kategori -->
 <div class="flex flex-wrap justify-center gap-3 mt-8">

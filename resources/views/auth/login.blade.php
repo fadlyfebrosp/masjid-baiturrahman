@@ -12,11 +12,13 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+<body
+  class="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat"
+  style="background-image: url('{{ asset('assets/img/masjid_baiturrahman.jpg') }}');"
+>
+  <div class="absolute inset-0 bg-black/20 backdrop-blur-sm"></div>
 
   <div class="bg-white rounded-2xl shadow-lg w-full max-w-md p-8 relative overflow-hidden">
-    <div class="absolute top-[-40px] right-[-60px] w-56 h-56 bg-gradient-to-tr from-green-400 to-green-200 rounded-[100px_50px_100px_50px] blur-xl opacity-60"></div>
-    <div class="absolute bottom-[-50px] left-[-40px] w-56 h-56 bg-gradient-to-br from-green-100 to-green-400 rounded-[50px_100px_50px_100px] blur-xl opacity-60"></div>
 
     <div class="relative flex justify-center mb-4">
       <img src="{{ $logo }}" alt="Logo Masjid" class="w-40 h-40 object-contain">

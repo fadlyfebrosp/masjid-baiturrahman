@@ -15,4 +15,8 @@ class Pengeluaran extends Model
         'jumlah_dana',
         'keterangan',
     ];
+    public function alokasiDonasi()
+    {
+        return $this->belongsTo(AlokasiDonasi::class);
+    }
 }

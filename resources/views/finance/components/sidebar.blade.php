@@ -1,10 +1,20 @@
-<div x-data="{ open: true }" class="relative flex min-h-screen">
-
+<div x-data="{ open: true }" class="relative flex h-screen overflow-hidden">
     <!-- ================= SIDEBAR ================= -->
     <aside
         :class="open ? 'w-64' : 'w-20'"
-        class="bg-green-700 text-white flex flex-col transition-all duration-300 overflow-hidden"
+        class="bg-green-700 text-white flex flex-col
+            transition-all duration-300
+            overflow-visible"
     >
+    <button
+        type="button"
+        @click="$dispatch('close-sidebar')"
+        class="absolute top-3 right-3 w-8 h-8
+            flex items-center justify-center
+            rounded-full hover:bg-green-600 lg:hidden"
+    >
+        <i class="bi bi-x-lg text-lg"></i>
+    </button>
 
         <!-- ================= HEADER ================= -->
         <div class="p-6 text-center border-b border-green-600">
@@ -103,17 +113,28 @@
                 </button>
 
                 <div x-show="openMaster && open" x-transition class="ml-12 space-y-1 text-sm">
+
+                    <!-- PEMASUKKAN -->
                     <a href="{{ route('finance.pemasukkan.index') }}"
-                       class="block px-4 py-2 rounded-md
-                       {{ request()->routeIs('finance.pemasukkan.*') ? 'bg-green-600' : 'hover:bg-green-500' }}">
+                    class="block px-4 py-2 rounded-md
+                    {{ request()->routeIs('finance.pemasukkan.*') ? 'bg-green-600' : 'hover:bg-green-500' }}">
                         Pemasukkan
                     </a>
 
+                    <!-- PENGELUARAN -->
                     <a href="{{ route('finance.pengeluaran.index') }}"
-                       class="block px-4 py-2 rounded-md
-                       {{ request()->routeIs('finance.pengeluaran.*') ? 'bg-green-600' : 'hover:bg-green-500' }}">
+                    class="block px-4 py-2 rounded-md
+                    {{ request()->routeIs('finance.pengeluaran.*') ? 'bg-green-600' : 'hover:bg-green-500' }}">
                         Pengeluaran
                     </a>
+
+                    <!-- ALOKASI DANA -->
+                    <a href="{{ route('finance.alokasidonasi.index') }}"
+                        class="block px-4 py-2 rounded-md
+                        {{ request()->routeIs('finance.alokasidonasi.*') ? 'bg-green-600' : 'hover:bg-green-500' }}">
+                            Alokasi Dana
+                    </a>
+
                 </div>
             </div>
 
@@ -156,15 +177,6 @@
             </div>
 
         </nav>
-
-        <!-- ================= TOGGLE ================= -->
-        <div class="flex justify-center my-4">
-            <button @click="open = !open"
-                class="w-10 h-10 rounded-full bg-green-600 hover:bg-green-500 flex items-center justify-center">
-                <i :class="open ? 'bi-chevron-left' : 'bi-chevron-right'" class="bi"></i>
-            </button>
-        </div>
-
         <!-- ================= LOGOUT ================= -->
         <form action="{{ route('logout') }}" method="POST" class="border-t border-green-600">
             @csrf

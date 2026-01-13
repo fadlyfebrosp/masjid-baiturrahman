@@ -4,34 +4,37 @@
 
 @section('content')
 
-<!-- ================= HERO + BREADCRUMB ================= -->
-<div class="bg-green-50 py-14">
-    <div class="container mx-auto px-6 md:px-12">
+<!-- ================= HERO PROGRAM DONASI ================= -->
+<section class="relative bg-gradient-to-br from-green-600 to-green-800 text-white overflow-hidden">
+    <div class="container mx-auto px-6 md:px-12 py-24">
 
-        <nav class="mb-3 text-sm">
-            <ol class="flex items-center gap-2 text-gray-600">
-                <li>
-                    <a href="{{ url('/') }}" class="text-green-700 hover:text-green-800 font-medium">
-                        Beranda
-                    </a>
-                </li>
-                <li class="text-gray-400">›</li>
-                <li class="font-semibold text-gray-800">
-                    Program {{ $kategori ?? 'Donasi' }}
-                </li>
-            </ol>
+        <!-- Breadcrumb -->
+        <nav class="text-sm opacity-90 mb-3">
+            <a href="{{ url('/') }}" class="hover:underline">
+                Beranda
+            </a>
+            <span class="mx-2">/</span>
+            <span class="font-medium">
+                Program {{ $kategori ?? 'Donasi' }}
+            </span>
         </nav>
 
-        <h1 class="text-3xl font-bold text-gray-800">
+        <!-- Title -->
+        <h1 class="text-4xl md:text-5xl font-bold leading-tight">
             Program {{ $kategori ?? 'Donasi' }}
         </h1>
 
-        <p class="text-gray-600 mt-2">
+        <!-- Subtitle -->
+        <p class="mt-4 max-w-2xl text-lg text-green-100">
             Program donasi {{ strtolower($kategori ?? 'masjid') }} Masjid Baiturrahman
         </p>
 
     </div>
-</div>
+
+    <!-- Decorative blur -->
+    <div class="absolute -top-24 -right-24 w-96 h-96 bg-green-400 opacity-20 rounded-full blur-3xl"></div>
+    <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-green-300 opacity-20 rounded-full blur-3xl"></div>
+</section>
 
 <!-- ================= FILTER KATEGORI ================= -->
 <div class="container mx-auto px-6 md:px-12 mt-8">

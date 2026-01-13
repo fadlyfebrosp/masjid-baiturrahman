@@ -296,28 +296,31 @@ class HomeController extends Controller
     public function profile(Request $request)
     {
         $this->logActivity($request, 'Lihat Profil');
-
+        $logo = $this->getLogo();
         return view('pages.profile.show', [
             'user' => Auth::user(),
+            'logo' => $logo
         ]);
     }
 
     /* ===============================
-     | EDIT PROFILE
-     =============================== */
+    | EDIT PROFILE
+    =============================== */
     public function editProfile(Request $request)
     {
         $this->logActivity($request, 'Buka Form Edit Profil');
+        $logo = $this->getLogo();
 
         return view('pages.profile.edit', [
             'user' => Auth::user(),
+            'logo' => $logo
         ]);
     }
 
 
     /* ===============================
-     | UPDATE PROFILE
-     =============================== */
+    | UPDATE PROFILE
+    =============================== */
     public function updateProfile(Request $request)
     {
         $this->logActivity($request, 'Update Profil');
@@ -354,8 +357,9 @@ class HomeController extends Controller
 
         $user->save();
 
+        $logo = $this->getLogo();
         return redirect()
-            ->route('profile')
-            ->with('success', 'Profil berhasil diperbarui');
+        ->route('profile', ['logo' => $logo])
+        ->with('success', 'Profil berhasil diperbarui');
     }
 }

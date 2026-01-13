@@ -422,14 +422,22 @@ class ProgramController extends Controller
         $target    = $item->target_dana ?? 1;
         $persen    = min(100, ($terkumpul / $target) * 100);
 
-        // SISA HARI
+        /* ==========================
+        LOGIC EXPIRED (INI INTINYA)
+        ========================== */
         if ($item->open_goals || !$item->target_waktu) {
-            $sisaHari = 'Tanpa batas waktu';
+            $sisaHari  = 'Tanpa batas waktu';
+            $isExpired = false;
         } else {
-            $hari = floor(now()->diffInRealDays($item->target_waktu, false));
-            $sisaHari = $hari > 0
-            ? $hari . ' hari lagi'
-            : 'Berakhir';
+            $hari = (int) floor(now()->diffInRealDays($item->target_waktu, false));
+
+            if ($hari > 0) {
+                $sisaHari  = $hari . ' hari lagi';
+                $isExpired = false;
+            } else {
+                $sisaHari  = 'Berakhir';
+                $isExpired = true;
+            }
         }
 
         $donaturs = Donasi::where('program_id', $item->id)
@@ -445,6 +453,7 @@ class ProgramController extends Controller
             'persen'        => $persen,
             'jumlahDonasi'  => $item->jumlahDonasi,
             'sisaHari'      => $sisaHari,
+            'isExpired'     => $isExpired, // ✅ WAJIB
         ]);
     }
 }
