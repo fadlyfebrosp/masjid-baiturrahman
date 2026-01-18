@@ -2,22 +2,20 @@
 
 namespace Database\Factories;
 
+use App\Models\Contactdonasioffline;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\contactdonasioffline>
- */
 class ContactdonasiofflineFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+    protected $model = Contactdonasioffline::class;
+
     public function definition(): array
     {
         return [
-            //
+            'name'   => $this->faker->name,
+            'email'  => $this->faker->unique()->safeEmail,
+            'phone'  => '08' . $this->faker->randomNumber(9),
+            'gender' => 'male',
         ];
     }
 }

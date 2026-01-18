@@ -2,22 +2,24 @@
 
 namespace Database\Factories;
 
+use App\Models\Donasi;
+use App\Models\Program;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\donasi>
- */
 class DonasiFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-    public function definition(): array
+    protected $model = Donasi::class;
+
+    public function definition()
     {
         return [
-            //
+            'program_id'   => Program::factory(),
+            'nama_donatur' => $this->faker->name,
+            'email'        => $this->faker->safeEmail,
+            'telepon'      => $this->faker->phoneNumber,
+            'anonim'       => false,
+            'nominal'      => 100000,
+            'status'       => 'pending',
         ];
     }
 }

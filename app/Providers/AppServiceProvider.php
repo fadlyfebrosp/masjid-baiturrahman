@@ -26,73 +26,61 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
+
     public function boot(): void
     {
-        // --------------------------------------------------------------------
-        // 1. UPDATE LAST LOGIN USER
-        // --------------------------------------------------------------------
-        Event::listen(Login::class, function (Login $event) {
-            if (Schema::hasColumn('users', 'last_login_at')) {
-                User::where('id', $event->user->getAuthIdentifier())
-                    ->update([
-                        'last_login_at' => now(),
-                    ]);
+        try {
+
+            // 1. UPDATE LAST LOGIN USER
+            Event::listen(Login::class, function (Login $event) {
+                if (Schema::hasColumn('users', 'last_login_at')) {
+                    User::where('id', $event->user->getAuthIdentifier())
+                        ->update(['last_login_at' => now()]);
+                }
+            });
+
+            // 2. KATEGORI PROGRAM
+            $defaultKategori = ['Zakat', 'Infak', 'Sedekah', 'Wakaf', 'Hibah'];
+            $kategoriProgram = $defaultKategori;
+
+            if (Schema::hasTable('programs')) {
+                $kategoriDB = Program::select('kategori')
+                    ->distinct()
+                    ->pluck('kategori')
+                    ->toArray();
+
+                $kategoriProgram = array_values(
+                    array_unique(array_merge($defaultKategori, $kategoriDB))
+                );
             }
-        });
 
-        // --------------------------------------------------------------------
-        // 2. KATEGORI PROGRAM (GLOBAL)
-        // --------------------------------------------------------------------
-        $defaultKategori = ['Zakat', 'Infak', 'Sedekah', 'Wakaf', 'Hibah'];
-        $kategoriProgram = $defaultKategori;
+            View::share('kategoriProgram', $kategoriProgram);
 
-        if (Schema::hasTable('programs')) {
-            $kategoriDB = Program::select('kategori')
-                ->distinct()
-                ->pluck('kategori')
-                ->toArray();
+            // 3. NOTIFIKASI ADMIN
+            View::composer('admin.components.navbar', function ($view) {
 
-            $kategoriProgram = array_values(
-                array_unique(array_merge($defaultKategori, $kategoriDB))
-            );
+                $notifDonasi  = 0;
+                $latestDonasi = collect();
+
+                if (Schema::hasTable('donasis')) {
+                    $notifDonasi = Donasi::where('is_read_admin', false)
+                        ->whereIn('status', ['pending', 'paid'])
+                        ->count();
+
+                    $latestDonasi = Donasi::latest()->limit(5)->get();
+                }
+
+                $view->with(compact('notifDonasi', 'latestDonasi'));
+            });
+
+        } catch (\Throwable $e) {
+            // PENTING: jangan lakukan apa-apa
+            // agar artisan command tetap bisa jalan
         }
 
-        View::share('kategoriProgram', $kategoriProgram);
-
-        // --------------------------------------------------------------------
-        // 3. NOTIFIKASI ADMIN (NAVBAR ADMIN)
-        // --------------------------------------------------------------------
-        View::composer('admin.components.navbar', function ($view) {
-
-            $notifDonasi  = 0;
-            $latestDonasi = collect();
-
-            if (Schema::hasTable('donasis')) {
-                $notifDonasi = Donasi::where('is_read_admin', false)
-                    ->whereIn('status', ['pending', 'paid'])
-                    ->count();
-
-                $latestDonasi = Donasi::latest()
-                    ->limit(5)
-                    ->get();
-            }
-
-            $view->with([
-                'notifDonasi'  => $notifDonasi,
-                'latestDonasi' => $latestDonasi,
-            ]);
-        });
-
-        // --------------------------------------------------------------------
-        // 4. LOGO UNTUK SEMUA HALAMAN ERROR (401,403,404,419,500)
-        // --------------------------------------------------------------------
+        // ERROR VIEW LOGO (sudah aman)
         View::composer('errors::*', function ($view) {
-            try {
-                $view->with('logo', $this->getLogo());
-            } catch (\Throwable $e) {
-                // fallback PALING AMAN
-                $view->with('logo', asset('assets/img/logo.png'));
-            }
+            $view->with('logo', asset('assets/img/logo.png'));
         });
     }
 

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 
+
 class Program extends Model
 {
     use HasFactory;
@@ -15,12 +16,20 @@ class Program extends Model
         'foto_url',
         'sisa_hari',
     ];
+    public const KATEGORI_INFAK = 'Infak';
     public const SUB_ZAKAT = [
         'fitrah'     => 'Zakat Fitrah',
         'mal'        => 'Zakat Penghasilan / Mal',
         'emas'       => 'Zakat Emas',
         'pertanian'  => 'Zakat Pertanian',
         'peternakan' => 'Zakat Peternakan',
+    ];
+    public const KATEGORI = [
+        'zakat',
+        'infaq',
+        'sedekah',
+        'wakaf',
+        'hibah',
     ];
     protected $fillable = [
         'kategori',

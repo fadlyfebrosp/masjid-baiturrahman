@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class DonasiOffline extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'program_id',
         'contactdonasioffline_id',

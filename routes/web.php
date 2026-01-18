@@ -203,11 +203,11 @@ Route::prefix('admin')
             ->name('donasioffline.')
             ->controller(DonasiOfflineController::class)
             ->group(function () {
-                // INDEX
+
                 Route::get('/', 'index')->name('index');
-                // CREATE
                 Route::get('/tambah', 'create')->name('tambah');
                 Route::post('/', 'store')->name('store');
+                Route::get('/{donasiOffline}/edit', 'edit')->name('edit');
             });
     });
 
@@ -245,6 +245,7 @@ Route::prefix('finance')
             ->name('pengeluaran.update');
         Route::delete('/pengeluaran/{id}', [PengeluaranController::class, 'destroy'])
             ->name('pengeluaran.destroy');
+            
         Route::resource('alokasidonasi', AlokasiDonasiController::class)
             ->except(['create', 'edit']);
 

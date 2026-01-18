@@ -9,21 +9,8 @@ return new class extends Migration {
     {
         Schema::create('activity_logs', function (Blueprint $table) {
             $table->id();
-
-            // Relasi ke user
-            $table->foreignId('user_id')
-                  ->nullable()
-                  ->constrained('users')
-                  ->onDelete('cascade');
-
-            // Relasi ke session
-            $table->string('session_id')->nullable();
-            $table->foreign('session_id')
-                  ->references('id')
-                  ->on('sessions')
-                  ->onDelete('set null');
-
-            $table->string('action');
+            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
+            $table->string('action');          // ← WAJIB ADA
             $table->string('ip_address')->nullable();
             $table->text('user_agent')->nullable();
             $table->timestamps();

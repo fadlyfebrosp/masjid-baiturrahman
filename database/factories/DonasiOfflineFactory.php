@@ -2,22 +2,25 @@
 
 namespace Database\Factories;
 
+use App\Models\DonasiOffline;
+use App\Models\Program;
+use App\Models\Contactdonasioffline;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\donasi_offline>
- */
 class DonasiOfflineFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+    protected $model = DonasiOffline::class;
+
     public function definition(): array
     {
         return [
-            //
+            'program_id' => Program::factory(),
+            'contactdonasioffline_id' => Contactdonasioffline::factory(),
+            'nominal' => 100000,
+            'metode_pembayaran' => 'CASH',
+            'tanggal_transaksi' => now(),
+            'kode_transaksi' => $this->faker->unique()->uuid(),
+            'status' => 'SELESAI',
         ];
     }
 }
