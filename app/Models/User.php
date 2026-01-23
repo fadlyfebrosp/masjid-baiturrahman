@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Notifications\ResetPasswordCustom;
@@ -31,9 +30,8 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
-            'last_login_at'     => 'datetime',
-            'password' => 'hashed',
+            'last_login_at' => 'datetime',
+            'password'      => 'hashed',
         ];
     }
 
@@ -46,11 +44,12 @@ class User extends Authenticatable
             ->implode('');
     }
 
-    // Relasi: User bisa punya banyak donasi
+    // Relasi: User punya banyak donasi
     public function donasis()
     {
         return $this->hasMany(Donasi::class);
     }
+
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new ResetPasswordCustom($token));

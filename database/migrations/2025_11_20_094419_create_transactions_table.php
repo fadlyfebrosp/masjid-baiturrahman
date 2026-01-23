@@ -16,14 +16,19 @@ return new class extends Migration
 
             $table->foreignId('donasi_id')->constrained()->cascadeOnDelete();
 
-            $table->string('reference');
-            $table->string('payment_method');
-            $table->string('payment_code')->nullable();
-            $table->string('pay_url')->nullable();
+            $table->string('reference')->unique();
+            $table->string('payment_method')->nullable();
+            $table->string('payment_type')->nullable();
+            $table->string('payment_channel')->nullable();
 
             $table->bigInteger('amount');
-            $table->enum('status', ['pending', 'paid', 'expired', 'failed'])
-                ->default('pending');
+
+            $table->enum('status', [
+                'pending',
+                'paid',
+                'expired',
+                'failed'
+            ])->default('pending');
 
             $table->timestamp('paid_at')->nullable();
 

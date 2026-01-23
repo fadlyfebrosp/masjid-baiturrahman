@@ -13,9 +13,8 @@ class CreateBeritadankegiatanTable extends Migration
             $table->string('judul');
             $table->string('namamasjid');
             $table->date('tanggal');
-            $table->string('kategori');
+            $table->enum('kategori', ['Berita', 'Kegiatan']);
             $table->text('deskripsi');
-            $table->string('foto')->nullable();
             $table->timestamps();
         });
     }

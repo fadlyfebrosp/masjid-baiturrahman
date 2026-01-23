@@ -89,7 +89,7 @@ class HomeController extends Controller
             $programs = Program::where('judul', 'like', "%{$keyword}%")
                 ->limit(5)
                 ->get()
-                ->map(fn ($p) => [
+                ->map(fn($p) => [
                     'judul' => $p->judul,
                     'type'  => 'Program',
                     'url'   => route('program.detail', [
@@ -101,7 +101,7 @@ class HomeController extends Controller
             $berita = BeritaDankegiatan::where('judul', 'like', "%{$keyword}%")
                 ->limit(5)
                 ->get()
-                ->map(fn ($b) => [
+                ->map(fn($b) => [
                     'judul' => $b->judul,
                     'type'  => 'Berita & Kegiatan',
                     'url'   => route('beritadankegiatan.detail', $b->slug),
@@ -118,14 +118,14 @@ class HomeController extends Controller
         $berita   = BeritaDankegiatan::latest()->take(6)->get();
 
         $programs = Program::withSum(
-            ['donasis as terkumpul' => fn ($q) => $q->where('status', 'paid')],
+            ['donasis as terkumpul' => fn($q) => $q->where('status', 'paid')],
             'nominal'
         )
-        ->withCount([
-            'donasis as jumlah_donasi' => fn ($q) => $q->where('status', 'paid')
-        ])
-        ->latest()
-        ->get();
+            ->withCount([
+                'donasis as jumlah_donasi' => fn($q) => $q->where('status', 'paid')
+            ])
+            ->latest()
+            ->get();
 
         /* ===============================
         | INVOICE (OPTIONAL)
@@ -154,7 +154,8 @@ class HomeController extends Controller
         ));
     }
 
-    public function kalkulator(Request $request){
+    public function kalkulator(Request $request)
+    {
         $logo = $this->getLogo();
         return view('program.kalkulatorzakat', compact(
             'logo',
@@ -167,48 +168,7 @@ class HomeController extends Controller
             'logo',
         ));
     }
-    public function paymentSuccess(string $reference)
-    {
-        $transaction = Transaction::with('donasi.program')
-            ->where('reference', $reference)
-            ->where('status', 'paid')
-            ->firstOrFail();
 
-        $logo = $this->getLogo();
-
-        return view('midtrans.success', compact(
-            'transaction',
-            'logo'
-        ));
-    }
-    public function paymentPending(string $reference)
-    {
-        $transaction = Transaction::with('donasi.program')
-            ->where('reference', $reference)
-            ->where('status', 'pending')
-            ->firstOrFail();
-
-        $logo = $this->getLogo();
-
-        return view('midtrans.pending', compact(
-            'transaction',
-            'logo'
-        ));
-    }
-    public function paymentFailed(string $reference)
-    {
-        $transaction = Transaction::with('donasi.program')
-            ->where('reference', $reference)
-            ->whereIn('status', ['failed', 'expired'])
-            ->firstOrFail();
-
-        $logo = $this->getLogo();
-
-        return view('midtrans.failed', compact(
-            'transaction',
-            'logo'
-        ));
-    }
     public function laporan(Request $request)
     {
         // =========================
@@ -359,7 +319,7 @@ class HomeController extends Controller
 
         $logo = $this->getLogo();
         return redirect()
-        ->route('profile', ['logo' => $logo])
-        ->with('success', 'Profil berhasil diperbarui');
+            ->route('profile', ['logo' => $logo])
+            ->with('success', 'Profil berhasil diperbarui');
     }
 }

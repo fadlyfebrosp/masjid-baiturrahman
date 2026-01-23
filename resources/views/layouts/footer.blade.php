@@ -86,6 +86,6 @@
 
   <!-- COPYRIGHT -->
   <div class="py-5 text-center text-sm text-green-700">
-    © {{ date('Y') }} Masjid Baiturrahman
+    © {{ date('Y') }} Masjid Baiturrahman · v1.1
   </div>
 </footer>

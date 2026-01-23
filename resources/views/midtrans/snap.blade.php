@@ -4,17 +4,12 @@
     <meta charset="UTF-8">
     <title>Pembayaran</title>
 
-    @if($isProduction ?? false)
-        <script
-            src="https://app.midtrans.com/snap/snap.js"
-            data-client-key="{{ $clientKey }}">
-        </script>
-    @else
-        <script
-            src="https://app.sandbox.midtrans.com/snap/snap.js"
-            data-client-key="{{ $clientKey }}">
-        </script>
-    @endif
+    <script
+        src="{{ $production
+            ? 'https://app.midtrans.com/snap/snap.js'
+            : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
+        data-client-key="{{ $clientKey }}">
+    </script>
 </head>
 <body>
 
@@ -22,38 +17,29 @@
 snap.pay('{{ $snapToken }}', {
 
     onSuccess: function (result) {
-        // pembayaran sukses
-        window.location.href =
-            "{{ route('payment.success', ':reference') }}"
-                .replace(':reference', result.order_id);
+        goStatus(result.order_id);
     },
 
     onPending: function (result) {
-        // pembayaran pending
-        window.location.href =
-            "{{ route('payment.pending', ':reference') }}"
-                .replace(':reference', result.order_id);
-    },
-
-    onError: function (result) {
-        // pembayaran gagal
-        window.location.href =
-            "{{ route('payment.failed', ':reference') }}"
-                .replace(':reference', result.order_id);
+        goStatus(result.order_id);
     },
 
     onClose: function () {
-        /**
-         * User menutup popup Snap
-         * WAJIB tetap bawa reference dari server
-         * agar transaksi bisa dilanjutkan
-         */
-        window.location.href =
-            "{{ route('payment.pending', ':reference') }}"
-                .replace(':reference', '{{ $reference }}');
-    }
+        goStatus('{{ $reference }}');
+    },
 
+    onError: function (result) {
+        window.location.href =
+            "{{ route('payment.failed', ':ref') }}"
+                .replace(':ref', result.order_id);
+    }
 });
+
+function goStatus(ref) {
+    window.location.href =
+        "{{ route('payment.pending', ':ref') }}"
+            .replace(':ref', ref);
+}
 </script>
 
 </body>

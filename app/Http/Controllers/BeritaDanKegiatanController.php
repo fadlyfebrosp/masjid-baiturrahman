@@ -3,118 +3,165 @@
 namespace App\Http\Controllers;
 
 use App\Models\BeritaDanKegiatan;
+use App\Models\BeritaFoto;
 use App\Models\KontakInformasi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class BeritaDanKegiatanController extends Controller
 {
     private const DEFAULT_LOGO = 'assets/img/Image-not-found.png';
     private const STORAGE_PATH = 'storage/';
+
     private function getLogo(): string
     {
         $kontak = KontakInformasi::first();
 
-        if (
-            $kontak &&
-            $kontak->logo &&
-            Storage::disk('public')->exists($kontak->logo)
-        ) {
+        if ($kontak && $kontak->logo && Storage::disk('public')->exists($kontak->logo)) {
             return asset(self::STORAGE_PATH . $kontak->logo);
         }
 
         return asset(self::DEFAULT_LOGO);
     }
+
+    /* =========================
+     * INDEX
+     * ========================= */
     public function index(Request $request)
     {
         $search = $request->search;
 
-        $data = BeritaDanKegiatan::when($search, function ($query) use ($search) {
-            $query->where('judul', 'like', "%$search%");
-        })->orderBy('id', 'DESC')->get();
+        $data = BeritaDanKegiatan::with('fotos')
+            ->when($search, function ($q) use ($search) {
+                $q->where('judul', 'like', "%$search%");
+            })
+            ->latest()
+            ->get();
+
         $logo = $this->getLogo();
-        return view('admin.beritadankegiatan.index', compact('data', 'search','logo'));
+
+        return view('admin.beritadankegiatan.index', compact('data', 'search', 'logo'));
     }
 
+    /* =========================
+     * STORE (MULTI IMAGE)
+     * ========================= */
     public function store(Request $request)
     {
         $request->validate([
-            'judul' => 'required',
-            'namamasjid' => 'required',
-            'tanggal' => 'required',
-            'kategori' => 'required',
-            'deskripsi' => 'required',
-            'foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
+            'judul'       => 'required',
+            'namamasjid'  => 'required',
+            'tanggal'     => 'required|date',
+            'kategori'    => 'required',
+            'deskripsi'   => 'nullable',
+            'foto'        => 'nullable|array',
+            'foto.*'      => 'nullable|image|max:4096',
         ]);
 
-        $foto = null;
+        DB::transaction(function () use ($request) {
 
-        if ($request->hasFile('foto')) {
-            $foto = $request->file('foto')->store('berita-foto', 'public');
-        }
+            $berita = BeritaDanKegiatan::create([
+                'judul'       => $request->judul,
+                'namamasjid'  => $request->namamasjid,
+                'tanggal'     => $request->tanggal,
+                'kategori'    => $request->kategori,
+                'deskripsi'   => $request->deskripsi,
+            ]);
 
-        BeritaDanKegiatan::create([
-            'judul' => $request->judul,
-            'namamasjid' => $request->namamasjid,
-            'tanggal' => $request->tanggal,
-            'kategori' => $request->kategori,
-            'deskripsi' => $request->deskripsi,
-            'foto' => $foto,
-        ]);
+            if ($request->hasFile('foto')) {
+                foreach ($request->file('foto') as $file) {
 
-        return back()->with('success', 'Berhasil menambahkan data!');
+                    if (!$file->isValid()) {
+                        continue;
+                    }
+
+                    $path = $file->store('berita', 'public');
+
+                    BeritaFoto::create([
+                        'berita_dan_kegiatan_id' => $berita->id,
+                        'path' => $path,
+                    ]);
+                }
+            }
+        });
+
+        return back()->with('success', 'Data berhasil disimpan');
     }
-
+    /* =========================
+     * UPDATE (TAMBAH FOTO BARU)
+     * ========================= */
     public function update(Request $request, $id)
     {
-        $data = BeritaDanKegiatan::findOrFail($id);
+        $berita = BeritaDanKegiatan::findOrFail($id);
 
-        $request->validate([
-            'judul' => 'required',
-            'namamasjid' => 'required',
-            'tanggal' => 'required',
-            'kategori' => 'required',
-            'deskripsi' => 'required',
-            'foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
+        $berita->update([
+            'judul'       => $request->judul,
+            'namamasjid'  => $request->namamasjid,
+            'tanggal'     => $request->tanggal,
+            'kategori'    => $request->kategori,
+            'deskripsi'   => $request->deskripsi,
         ]);
-
-        $foto = $data->foto;
 
         if ($request->hasFile('foto')) {
-            if ($foto && Storage::disk('public')->exists($foto)) {
-                Storage::disk('public')->delete($foto);
+            foreach ($request->file('foto') as $file) {
+
+                if (!$file->isValid()) {
+                    continue;
+                }
+
+                $path = $file->store('berita', 'public');
+
+                BeritaFoto::create([
+                    'berita_dan_kegiatan_id' => $berita->id,
+                    'path' => $path,
+                ]);
             }
-            $foto = $request->file('foto')->store('berita-foto', 'public');
         }
 
-        $data->update([
-            'judul' => $request->judul,
-            'namamasjid' => $request->namamasjid,
-            'tanggal' => $request->tanggal,
-            'kategori' => $request->kategori,
-            'deskripsi' => $request->deskripsi,
-            'foto' => $foto,
-        ]);
-
-        return back()->with('success', 'Berhasil mengupdate data!');
+        return back()->with('success', 'Data berhasil diperbarui');
     }
 
+    /* =========================
+     * DELETE BERITA + FOTO
+     * ========================= */
     public function destroy($id)
     {
-        $data = BeritaDanKegiatan::findOrFail($id);
+        $berita = BeritaDanKegiatan::with('fotos')->findOrFail($id);
 
-        if ($data->foto && Storage::disk('public')->exists($data->foto)) {
-            Storage::disk('public')->delete($data->foto);
+        foreach ($berita->fotos as $foto) {
+            if (Storage::disk('public')->exists($foto->path)) {
+                Storage::disk('public')->delete($foto->path);
+            }
         }
 
-        $data->delete();
+        $berita->delete();
 
         return back()->with('success', 'Berhasil menghapus data!');
     }
+    public function destroyFoto($id)
+    {
+        $foto = BeritaFoto::findOrFail($id);
+
+        if (Storage::disk('public')->exists($foto->path)) {
+            Storage::disk('public')->delete($foto->path);
+        }
+
+        $foto->delete();
+
+        return response()->json([
+            'success' => true
+        ]);
+    }
+
+    /* =========================
+     * PUBLIC
+     * ========================= */
     public function showPublic()
     {
-        $data = BeritaDankegiatan::latest()->paginate(9);
+        $data = BeritaDanKegiatan::with('fotos')->latest()->paginate(9);
         $logo = $this->getLogo();
+
         return view('pages.berita', compact('data', 'logo'));
     }
 
@@ -122,12 +169,17 @@ class BeritaDanKegiatanController extends Controller
     {
         $judul = urldecode($judul);
 
-        $berita = BeritaDankegiatan::where('judul', $judul)->firstOrFail();
-        $beritaLainnya = BeritaDankegiatan::where('id', '!=', $berita->id)
+        $berita = BeritaDanKegiatan::with('fotos')
+            ->where('judul', $judul)
+            ->firstOrFail();
+
+        $beritaLainnya = BeritaDanKegiatan::where('id', '!=', $berita->id)
             ->latest()
             ->take(5)
             ->get();
+
         $logo = $this->getLogo();
-        return view('pages.detail', compact('berita', 'beritaLainnya','logo'));
+
+        return view('pages.detail', compact('berita', 'beritaLainnya', 'logo'));
     }
 }

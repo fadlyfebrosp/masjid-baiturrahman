@@ -3,19 +3,16 @@
 @section('title', 'Berita & Kegiatan')
 
 @section('content')
+
 <!-- HEADER -->
 <div class="mb-6">
     <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-
-        <!-- TITLE -->
         <h1 class="text-xl md:text-2xl font-bold text-green-700">
             Berita & Kegiatan
         </h1>
 
-        <!-- BREADCRUMB -->
         <nav class="text-sm text-gray-600">
-            <a href="{{ route('admin.dashboard') }}"
-               class="hover:text-green-700 hover:underline">
+            <a href="{{ route('admin.dashboard') }}" class="hover:text-green-700 hover:underline">
                 Home
             </a>
             <span class="mx-1">›</span>
@@ -23,300 +20,243 @@
                 Berita & Kegiatan
             </span>
         </nav>
-
     </div>
 
-    <!-- BUTTON -->
     <div class="mt-4">
         <button onclick="openModal()"
-            class="w-full md:w-auto bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+            class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
             + Tambah
         </button>
     </div>
 </div>
 
 @if (session('success'))
-  <div class="bg-green-100 text-green-800 p-3 rounded mb-4">
-    {{ session('success') }}
-  </div>
+<script>
+Swal.fire({
+    icon: 'success',
+    title: 'Berhasil',
+    text: "{{ session('success') }}",
+    confirmButtonColor: '#16a34a'
+});
+</script>
 @endif
 
-<!-- TABLE (Desktop & Tablet) -->
-<div class="hidden md:block bg-white shadow-lg rounded-xl p-4 overflow-x-auto">
-    <table class="w-full min-w-[800px]">
-        <thead>
-            <tr class="border-b bg-gray-50 text-gray-600 text-sm">
-                <th class="py-3 px-4 font-semibold">Gambar</th>
-                <th class="py-3 px-4 font-semibold">Judul</th>
-                <th class="py-3 px-4 font-semibold">Kategori</th>
-                <th class="py-3 px-4 font-semibold">Tanggal</th>
-                <th class="py-3 px-4 font-semibold">Aksi</th>
-            </tr>
-        </thead>
+<!-- TABLE -->
+<div class="hidden md:block bg-white shadow rounded-xl p-4">
+<table class="w-full">
+<thead>
+<tr class="border-b bg-gray-50 text-sm text-gray-600">
+    <th class="p-3">Gambar</th>
+    <th class="p-3">Judul</th>
+    <th class="p-3">Kategori</th>
+    <th class="p-3">Tanggal</th>
+    <th class="p-3">Aksi</th>
+</tr>
+</thead>
 
-        <tbody>
-            @forelse($data as $item)
-            <tr class="border-b hover:bg-gray-50 transition">
+<tbody>
+@foreach($data as $item)
+<tr class="border-b hover:bg-gray-50">
+    <td class="p-3">
+        <img
+            src="{{ $item->fotos->first()
+                ? asset('storage/'.$item->fotos->first()->path)
+                : 'https://via.placeholder.com/80' }}"
+            class="w-14 h-14 rounded object-cover">
+    </td>
 
-                <!-- GAMBAR -->
-                <td class="py-4 px-4">
-                    <img
-                        src="{{ $item->foto ? asset('storage/'.$item->foto) : 'https://via.placeholder.com/80' }}"
-                        alt=""
-                        class="w-14 h-14 rounded-md object-cover shadow-sm"
-                    >
-                </td>
+    <td class="p-3 font-medium">{{ $item->judul }}</td>
 
-                <!-- JUDUL -->
-                <td class="py-4 px-4">
-                    <span class="font-medium text-gray-800">
-                        {{ $item->judul }}
-                    </span>
-                </td>
+    <td class="p-3">
+        <span class="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded-full">
+            {{ $item->kategori }}
+        </span>
+    </td>
 
-                <!-- KATEGORI -->
-                <td class="py-4 px-4">
-                    <span class="px-3 py-1 text-xs rounded-full bg-blue-100 text-blue-700">
-                        {{ $item->kategori }}
-                    </span>
-                </td>
+    <td class="p-3">
+        {{ \Carbon\Carbon::parse($item->tanggal)->format('d M Y') }}
+    </td>
 
-                <!-- TANGGAL -->
-                <td class="py-4 px-4 text-gray-700">
-                    {{ \Carbon\Carbon::parse($item->tanggal)->format('d M Y') }}
-                </td>
-
-                <!-- AKSI -->
-                <td class="py-6 px-4">
-                    <div class="flex flex-col sm:flex-row gap-2">
-                        <button
-                            data-item='@json($item)'
-                            onclick="openEdit(this)"
-                            class="flex-1 px-3 py-1 bg-green-600 text-white rounded-lg text-sm shadow hover:bg-green-700">
-                            Edit
-                        </button>
-
-                        <form action="{{ route('admin.beritadankegiatan.destroy', $item->id) }}"
-                              method="POST"
-                              class="flex-1"
-                              onsubmit="return confirm('Yakin hapus data ini?')">
-                            @csrf
-                            @method('DELETE')
-                            <button
-                                class="w-full px-3 py-1 bg-red-600 text-white rounded-lg text-sm shadow hover:bg-red-700">
-                                Hapus
-                            </button>
-                        </form>
-                    </div>
-                </td>
-
-            </tr>
-            @empty
-            <tr>
-                <td colspan="5" class="py-6 text-center text-gray-500">
-                    Belum ada data.
-                </td>
-            </tr>
-            @endforelse
-        </tbody>
-    </table>
-</div>
-
-<!-- MOBILE CARD VIEW -->
-<div class="md:hidden space-y-4">
-@forelse($data as $item)
-    <div class="bg-white rounded-xl shadow p-4">
-        <div class="flex gap-3">
-            <img
-                src="{{ $item->foto ? asset('storage/'.$item->foto) : 'https://via.placeholder.com/80' }}"
-                class="w-16 h-16 rounded object-cover"
-            >
-            <div class="flex-1">
-                <h3 class="font-semibold text-gray-800">{{ $item->judul }}</h3>
-                <span class="inline-block mt-1 px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-700">
-                    {{ $item->kategori }}
-                </span>
-                <p class="text-sm text-gray-500 mt-1">
-                    {{ \Carbon\Carbon::parse($item->tanggal)->format('d M Y') }}
-                </p>
-            </div>
-        </div>
-
-        <div class="flex gap-2 mt-4">
+    <td class="p-3">
+        <div class="flex gap-2">
             <button
                 data-item='@json($item)'
                 onclick="openEdit(this)"
-                class="flex-1 bg-green-600 text-white py-2 rounded-lg text-sm">
+                class="bg-green-600 text-white px-3 py-1 rounded text-sm">
                 Edit
             </button>
 
             <form action="{{ route('admin.beritadankegiatan.destroy', $item->id) }}"
                   method="POST"
-                  class="flex-1"
-                  onsubmit="return confirm('Yakin hapus data ini?')">
+                  onsubmit="return confirm('Yakin hapus data?')">
                 @csrf
                 @method('DELETE')
-                <button class="w-full bg-red-600 text-white py-2 rounded-lg text-sm">
+                <button class="bg-red-600 text-white px-3 py-1 rounded text-sm">
                     Hapus
                 </button>
             </form>
         </div>
-    </div>
-@empty
-    <p class="text-center text-gray-500">Belum ada data.</p>
-@endforelse
+    </td>
+</tr>
+@endforeach
+</tbody>
+</table>
 </div>
 
-<!-- Modal Form Tambah/Edit -->
-<div id="dataModal" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
-  <div class="bg-white w-full h-full md:h-auto md:max-w-lg rounded-none md:rounded-lg shadow-xl p-6 relative border border-gray-200 overflow-y-auto">
-    <h2 id="modalTitle" class="text-xl font-bold text-green-700 mb-4">Tambah Data</h2>
+<!-- MODAL -->
+<div id="dataModal"
+     class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
 
-    <form id="dataForm" action="{{ route('admin.beritadankegiatan.store') }}" method="POST" enctype="multipart/form-data">
-      @csrf
-      <input type="hidden" name="id" id="dataId">
+<div class="bg-white w-full md:max-w-xl rounded-lg flex flex-col max-h-[90vh]">
 
-      <!-- Judul -->
-      <div class="mb-4">
-        <label for="judul" class="block font-medium mb-1 text-gray-700">Judul</label>
-        <input type="text" name="judul" id="judul"
-          class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-          required>
-      </div>
-
-      <!-- Nama Masjid -->
-      <div class="mb-4">
-        <label for="namamasjid" class="block font-medium mb-1 text-gray-700">Nama Masjid</label>
-        <input type="text" name="namamasjid" id="namamasjid"
-          class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-          required>
-      </div>
-
-      <!-- Tanggal -->
-      <div class="mb-4">
-        <label for="tanggal" class="block font-medium mb-1 text-gray-700">Tanggal</label>
-        <input type="date" name="tanggal" id="tanggal"
-          class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-          required>
-      </div>
-
-      <!-- Kategori (Dropdown) -->
-      <div class="mb-4">
-        <label for="kategori" class="block font-medium mb-1 text-gray-700">Kategori</label>
-        <select name="kategori" id="kategori"
-          class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-          required>
-          <option value="" disabled selected>Pilih Kategori</option>
-          <option value="Berita">Berita</option>
-          <option value="Kegiatan">Kegiatan</option>
-        </select>
-      </div>
-
-      <!-- Deskripsi -->
-      <div class="mb-4">
-        <label for="deskripsi" class="block font-medium mb-1 text-gray-700">Deskripsi</label>
-        <textarea name="deskripsi" id="deskripsi" rows="4"
-          class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-          required></textarea>
-      </div>
-
-      <!-- Foto -->
-      <div class="mb-4">
-        <label for="foto" class="block font-medium mb-1 text-gray-700">Foto</label>
-        <input type="file" name="foto" id="foto" accept="image/png,image/jpeg"
-            class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none">
-
-        @error('foto')
-            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-        @enderror
-      </div>
-
-      <!-- Tombol Aksi -->
-      <div class="flex flex-col sm:flex-row justify-end mt-6 gap-2">
-        <button type="button" onclick="closeModal()"
-          class="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500 transition">
-          Batal
-        </button>
-        <button type="submit"
-          class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
-          Simpan
-        </button>
-      </div>
-    </form>
-  </div>
+<!-- HEADER -->
+<div class="p-6 border-b">
+    <h2 id="modalTitle" class="text-xl font-bold text-green-700">
+        Tambah Data
+    </h2>
 </div>
 
-<!-- Script Modal -->
+<!-- BODY -->
+<div class="p-6 overflow-y-auto">
+<form id="dataForm" method="POST" enctype="multipart/form-data">
+@csrf
+
+<div class="mb-4">
+    <label>Judul</label>
+    <input type="text" name="judul" id="judul" class="w-full border rounded p-2">
+</div>
+
+<div class="mb-4">
+    <label>Nama Masjid</label>
+    <input type="text" name="namamasjid" id="namamasjid" class="w-full border rounded p-2">
+</div>
+
+<div class="mb-4">
+    <label>Tanggal</label>
+    <input type="date" name="tanggal" id="tanggal" class="w-full border rounded p-2">
+</div>
+
+<div class="mb-4">
+    <label>Kategori</label>
+    <select name="kategori" id="kategori" class="w-full border rounded p-2">
+        <option value="Berita">Berita</option>
+        <option value="Kegiatan">Kegiatan</option>
+    </select>
+</div>
+
+<div class="mb-4">
+    <label>Deskripsi</label>
+    <textarea name="deskripsi" id="deskripsi" rows="4"
+        class="w-full border rounded p-2"></textarea>
+</div>
+
+<div class="mb-4">
+    <label>Foto (multi)</label>
+    <input type="file" name="foto[]" multiple class="w-full border rounded p-2">
+</div>
+
+<!-- EXISTING FOTO -->
+<div id="existingPhotos" class="grid grid-cols-3 gap-3 mb-6"></div>
+
+<div class="flex justify-end gap-2">
+    <button type="button" onclick="closeModal()" class="bg-gray-400 text-white px-4 py-2 rounded">
+        Batal
+    </button>
+    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">
+        Simpan
+    </button>
+</div>
+
+</form>
+</div>
+</div>
+</div>
+
+<!-- SCRIPT -->
 <script>
-  const dataModal = document.getElementById('dataModal');
-  const dataForm = document.getElementById('dataForm');
+const modal = document.getElementById('dataModal');
+const form  = document.getElementById('dataForm');
+const photosBox = document.getElementById('existingPhotos');
 
-  function openModal() {
-    document.getElementById('modalTitle').innerText = 'Tambah Data';
-    dataForm.action = "{{ route('admin.beritadankegiatan.store') }}";
-    removeMethodInput();
+function openModal() {
+    form.action = "{{ route('admin.beritadankegiatan.store') }}";
+    removeMethod();
+    form.reset();
+    photosBox.innerHTML = '';
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
 
-    document.getElementById('dataId').value = '';
-    document.getElementById('judul').value = '';
-    document.getElementById('namamasjid').value = '';
-    document.getElementById('tanggal').value = '';
-    document.getElementById('kategori').value = '';
-    document.getElementById('deskripsi').value = '';
+function closeModal() {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
 
-    const fotoInput = document.getElementById('foto');
-    if (fotoInput) fotoInput.value = '';
-
-    dataModal.classList.remove('hidden');
-    dataModal.classList.add('flex');
-  }
-
-  function closeModal() {
-    dataModal.classList.add('hidden');
-    dataModal.classList.remove('flex');
-  }
-
-  function openEdit(btn) {
-    const raw = btn.getAttribute('data-item');
-    let item;
-    try {
-      item = JSON.parse(raw);
-    } catch (e) {
-      console.error('Gagal parse data-item', e);
-      alert('Data tidak valid.');
-      return;
-    }
+function openEdit(btn) {
+    const item = JSON.parse(btn.dataset.item);
 
     document.getElementById('modalTitle').innerText = 'Edit Data';
-    dataForm.action = `/admin/beritadankegiatan/${item.id}`;
-    addMethodInput('PUT');
+    form.action = `/admin/beritadankegiatan/${item.id}`;
+    addMethod('PUT');
 
-    document.getElementById('dataId').value = item.id ?? '';
-    document.getElementById('judul').value = item.judul ?? '';
-    document.getElementById('namamasjid').value = item.namamasjid ?? '';
-    document.getElementById('tanggal').value = item.tanggal ?? '';
-    document.getElementById('kategori').value = item.kategori ?? '';
-    document.getElementById('deskripsi').value = item.deskripsi ?? '';
+    judul.value = item.judul;
+    namamasjid.value = item.namamasjid;
+    tanggal.value = item.tanggal;
+    kategori.value = item.kategori;
+    deskripsi.value = item.deskripsi;
 
-    const fotoInput = document.getElementById('foto');
-    if (fotoInput) fotoInput.value = '';
+    photosBox.innerHTML = '';
+    item.fotos.forEach(foto => {
+        photosBox.innerHTML += `
+            <div class="relative" id="foto-${foto.id}">
+                <img src="/storage/${foto.path}" class="w-full h-24 rounded object-cover">
+                <button type="button"
+                    onclick="deletePhoto(${foto.id})"
+                    class="absolute top-1 right-1 bg-red-600 text-white rounded-full w-6 h-6 text-xs">
+                    ✕
+                </button>
+            </div>
+        `;
+    });
 
-    dataModal.classList.remove('hidden');
-    dataModal.classList.add('flex');
-  }
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
 
-  function addMethodInput(method = 'PUT') {
-    removeMethodInput();
-    const methodInput = document.createElement('input');
-    methodInput.type = 'hidden';
-    methodInput.name = '_method';
-    methodInput.value = method;
-    methodInput.id = '__method_hidden';
-    dataForm.appendChild(methodInput);
-  }
+function deletePhoto(id) {
+    Swal.fire({
+        title: 'Hapus foto?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626'
+    }).then(result => {
+        if (!result.isConfirmed) return;
 
-  function removeMethodInput() {
-    const existing = document.getElementById('__method_hidden');
-    if (existing) existing.remove();
-  }
+        fetch(`/admin/beritadankegiatan/foto/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        }).then(() => {
+            document.getElementById(`foto-${id}`).remove();
+        });
+    });
+}
+
+function addMethod(method) {
+    removeMethod();
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = '_method';
+    input.value = method;
+    input.id = '__method';
+    form.appendChild(input);
+}
+
+function removeMethod() {
+    const m = document.getElementById('__method');
+    if (m) m.remove();
+}
 </script>
+
 @endsection

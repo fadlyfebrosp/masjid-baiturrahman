@@ -5,197 +5,196 @@ namespace App\Http\Controllers;
 use App\Models\Donasi;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use Midtrans\Snap;
 use Midtrans\Config;
 use App\Helpers\Setting;
-use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\Mail;
 use App\Mail\DonasiPendingMail;
 use App\Mail\DonasiSuccessMail;
 
-
 class TransactionController extends Controller
 {
-    /**
-     * GET
-     * Proses pembayaran Midtrans
-     */
-    public function pay($donasiId)
+    /* =====================================================
+     * START PAYMENT (CREATE TRANSACTION + SNAP)
+     * ===================================================== */
+    public function pay(int $donasiId)
     {
         $donasi = Donasi::with('program')->findOrFail($donasiId);
+        abort_if($donasi->status !== 'pending', 403);
 
-        if ($donasi->status !== 'pending') {
-            abort(403, 'Donasi sudah diproses');
-        }
-
-        // ==========================
-        // MIDTRANS CONFIG
-        // ==========================
         $settings = Setting::load();
         $mode     = $settings['midtrans_mode'] ?? 'sandbox';
-        $midtrans = $settings['midtrans'][$mode] ?? null;
+        $midtrans = $settings['midtrans'][$mode] ?? [];
 
-        if (!$midtrans || empty($midtrans['server_key'])) {
-            throw ValidationException::withMessages([
-                'midtrans' => 'Credential Midtrans belum diatur admin',
-            ]);
-        }
-
-        Config::$serverKey    = $midtrans['server_key'];
-        Config::$isProduction = $mode === 'production';
-        Config::$isSanitized  = true;
-        Config::$is3ds        = true;
-
-        // ==========================
-        // CREATE REFERENCE (ORDER ID)
-        // ==========================
         $reference = 'DON-' . $donasi->id . '-' . time();
 
         $transaction = Transaction::create([
-            'donasi_id'       => $donasi->id,
-            'reference'       => $reference,
-            'payment_method'  => null,
-            'payment_type'    => null,
-            'payment_channel' => null,
-            'amount'          => $donasi->nominal,
-            'status'          => 'pending',
+            'donasi_id' => $donasi->id,
+            'reference' => $reference,
+            'amount'    => $donasi->nominal,
+            'status'    => 'pending',
         ]);
 
-        // ==========================
-        // SEND EMAIL (PENDING)
-        // ==========================
-        if (!empty($donasi->email)) {
-            Mail::to($donasi->email)
-                ->send(new DonasiPendingMail($donasi, $transaction));
+        if ($donasi->email) {
+            Mail::to($donasi->email)->send(
+                new DonasiPendingMail($donasi, $transaction)
+            );
         }
 
-        // ==========================
-        // MIDTRANS PAYLOAD
-        // ==========================
-        $payload = [
-            'transaction_details' => [
-                'order_id'     => $reference,
-                'gross_amount' => (int) $donasi->nominal,
-            ],
-            'customer_details' => [
-                'first_name' => $donasi->nama_donatur,
-                'email'      => $donasi->email,
-                'phone'      => $donasi->telepon,
-            ],
-        ];
-
-        $snapToken = Snap::getSnapToken($payload);
+        $snapToken = $this->createSnapToken(
+            $transaction,
+            $donasi,
+            $midtrans,
+            $mode
+        );
 
         return view('midtrans.snap', [
-            'snapToken' => $snapToken,
-            'clientKey' => $midtrans['client_key'],
-            'reference' => $reference,
+            'snapToken'  => $snapToken,
+            'clientKey'  => $midtrans['client_key'] ?? '',
+            'production' => $mode === 'production',
+            'reference'  => $transaction->reference,
         ]);
     }
 
-    /**
-     * POST
-     * Webhook Midtrans
-     */
+    /* =====================================================
+     * BACK TO PAYMENT (FROM PENDING PAGE)
+     * ===================================================== */
+    public function back(Transaction $transaction)
+    {
+        if ($transaction->status === 'paid') {
+            return redirect()->route('payment.success', $transaction->reference);
+        }
+
+        if (in_array($transaction->status, ['failed', 'expired'])) {
+            return redirect()->route('payment.failed', $transaction->reference);
+        }
+
+        $settings = Setting::load();
+        $mode     = $settings['midtrans_mode'] ?? 'sandbox';
+        $midtrans = $settings['midtrans'][$mode] ?? [];
+
+        $snapToken = $this->createSnapToken(
+            $transaction,
+            $transaction->donasi,
+            $midtrans,
+            $mode
+        );
+
+        return view('midtrans.snap', [
+            'snapToken'  => $snapToken,
+            'clientKey'  => $midtrans['client_key'] ?? '',
+            'production' => $mode === 'production',
+            'reference'  => $transaction->reference,
+        ]);
+    }
+
+    /* =====================================================
+     * PENDING PAGE
+     * ===================================================== */
+    public function pending(string $reference)
+    {
+        $transaction = Transaction::where('reference', $reference)->firstOrFail();
+
+        return view('midtrans.pending', compact('transaction'));
+    }
+
+    /* =====================================================
+     * STATUS POLLING (AJAX)
+     * ===================================================== */
+    public function status(string $reference)
+    {
+        $transaction = Transaction::where('reference', $reference)->firstOrFail();
+
+        return response()->json([
+            'status' => $transaction->status,
+        ]);
+    }
+
+    /* =====================================================
+     * SUCCESS PAGE
+     * ===================================================== */
+    public function success(string $reference)
+    {
+        $transaction = Transaction::where('reference', $reference)->firstOrFail();
+        abort_if($transaction->status !== 'paid', 403);
+
+        return view('midtrans.success', compact('transaction'));
+    }
+
+    /* =====================================================
+     * FAILED / EXPIRED PAGE
+     * ===================================================== */
+    public function failed(string $reference)
+    {
+        $transaction = Transaction::where('reference', $reference)->firstOrFail();
+
+        abort_if(
+            !in_array($transaction->status, ['failed', 'expired']),
+            403
+        );
+
+        return view('midtrans.failed', compact('transaction'));
+    }
+
+    /* =====================================================
+     * MIDTRANS CALLBACK (WEBHOOK)
+     * ===================================================== */
     public function callback(Request $request)
     {
+        Log::info('MIDTRANS CALLBACK', $request->all());
+
+        $settings = Setting::load();
+        $mode     = $settings['midtrans_mode'] ?? 'sandbox';
+        $midtrans = $settings['midtrans'][$mode] ?? [];
+
+        $serverKey = $midtrans['server_key'] ?? '';
+
+        $signature = hash(
+            'sha512',
+            $request->order_id .
+                $request->status_code .
+                $request->gross_amount .
+                $serverKey
+        );
+
+        if ($signature !== $request->signature_key) {
+            Log::error('MIDTRANS INVALID SIGNATURE', $request->all());
+            abort(403);
+        }
+
         $transaction = Transaction::where('reference', $request->order_id)
-            ->with('donasi.program')
+            ->with('donasi')
             ->firstOrFail();
 
-        $donasi = $transaction->donasi;
-
-        // ==========================
-        // PREVENT DOUBLE PROCESS
-        // ==========================
         if ($transaction->status === 'paid') {
-            return response()->json(['status' => 'already_paid']);
+            return response()->json(['ok']);
         }
 
-        // ==========================
-        // DETECT PAYMENT METHOD
-        // ==========================
-        $paymentType   = $request->payment_type;
-        $paymentMethod = null;
-        $channel       = null;
-
-        if ($paymentType === 'bank_transfer') {
-            $channel = $request->bank
-                ?? ($request->va_numbers[0]['bank'] ?? null);
-
-            $paymentMethod = $channel;
-        } elseif ($paymentType === 'qris') {
-            $paymentMethod = 'qris';
-            $channel       = 'qris';
-        } elseif (in_array($paymentType, ['gopay', 'shopeepay', 'ovo'])) {
-            $paymentMethod = $paymentType;
-            $channel       = $paymentType;
-        }
-
-        // ==========================
-        // UPDATE TRANSACTION
-        // ==========================
-        $transaction->update([
-            'payment_type'    => $paymentType,
-            'payment_channel' => $channel,
-            'payment_method'  => $paymentMethod,
-        ]);
-
-        // ==========================
-        // HANDLE STATUS
-        // ==========================
         match ($request->transaction_status) {
-            'settlement', 'capture' => $this->paid($transaction, $donasi),
-            'expire'                => $this->expired($transaction, $donasi),
-            'deny', 'cancel'        => $this->failed($transaction, $donasi),
+            'settlement', 'capture' => $this->paid($transaction),
+            'expire'                => $this->expired($transaction),
+            'deny', 'cancel'        => $this->markFailed($transaction),
             default                 => null,
         };
 
-        return response()->json(['status' => 'ok']);
+        return response()->json(['ok']);
     }
 
-    // ==========================
-    // STATUS HANDLER
-    // ==========================
-    private function paid(Transaction $transaction, Donasi $donasi)
-    {
-        $transaction->update([
-            'status'  => 'paid',
-            'paid_at' => now(),
-        ]);
-
-        $donasi->update([
-            'status' => 'paid',
-        ]);
-
-        if (!empty($donasi->email)) {
-            Mail::to($donasi->email)
-                ->send(new DonasiSuccessMail($donasi));
-        }
-    }
-    public function back(Transaction $transaction)
-    {
-        if ($transaction->status !== 'pending') {
-            abort(403, 'Transaksi tidak bisa dilanjutkan');
-        }
-
-        $donasi = $transaction->donasi;
-
-        // ==========================
-        // MIDTRANS CONFIG
-        // ==========================
-        $settings = Setting::load();
-        $mode     = $settings['midtrans_mode'] ?? 'sandbox';
-        $midtrans = $settings['midtrans'][$mode];
-
-        Config::$serverKey    = $midtrans['server_key'];
+    /* =====================================================
+     * SNAP TOKEN CREATOR
+     * ===================================================== */
+    private function createSnapToken(
+        Transaction $transaction,
+        Donasi $donasi,
+        array $midtrans,
+        string $mode
+    ) {
+        Config::$serverKey    = $midtrans['server_key'] ?? '';
         Config::$isProduction = $mode === 'production';
         Config::$isSanitized  = true;
         Config::$is3ds        = true;
 
-        // ==========================
-        // PAYLOAD (ORDER ID SAMA)
-        // ==========================
         $payload = [
             'transaction_details' => [
                 'order_id'     => $transaction->reference,
@@ -208,27 +207,36 @@ class TransactionController extends Controller
             ],
         ];
 
-        // Snap Token BARU (AMAN)
-        $snapToken = Snap::getSnapToken($payload);
-
-        return view('midtrans.snap', [
-            'snapToken'  => $snapToken,
-            'clientKey'  => $midtrans['client_key'],
-            'production' => $mode === 'production',
-            'reference'  => $transaction->reference,
-        ]);
+        return Snap::getSnapToken($payload);
     }
 
+    /* =====================================================
+     * STATUS HANDLERS
+     * ===================================================== */
+    private function paid(Transaction $transaction)
+    {
+        $transaction->update([
+            'status'  => 'paid',
+            'paid_at' => now(),
+        ]);
 
-    private function expired(Transaction $transaction, Donasi $donasi)
+        $transaction->donasi->update(['status' => 'paid']);
+
+        if ($transaction->donasi->email) {
+            Mail::to($transaction->donasi->email)
+                ->send(new DonasiSuccessMail($transaction->donasi));
+        }
+    }
+
+    private function expired(Transaction $transaction)
     {
         $transaction->update(['status' => 'expired']);
-        $donasi->update(['status' => 'expired']);
+        $transaction->donasi->update(['status' => 'expired']);
     }
 
-    private function failed(Transaction $transaction, Donasi $donasi)
+    private function markFailed(Transaction $transaction)
     {
         $transaction->update(['status' => 'failed']);
-        $donasi->update(['status' => 'failed']);
+        $transaction->donasi->update(['status' => 'failed']);
     }
 }

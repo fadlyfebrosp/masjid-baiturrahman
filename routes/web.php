@@ -87,20 +87,26 @@ Route::get('/kalkulatorzakat', [HomeController::class, 'kalkulator'])->name('kal
 
 Route::get('/payment/{donasi}/pay', [TransactionController::class, 'pay'])
     ->name('transaction.pay');
+Route::get(
+    '/payment/core/{reference}',
+    [TransactionController::class, 'core']
+)->name('payment.core');
 
-Route::post('/midtrans/callback', [TransactionController::class, 'callback']);
-
-Route::get('/payment/success/{reference}', [HomeController::class, 'paymentSuccess'])
-    ->name('payment.success');
-
-Route::get('/payment/pending/{reference}', [HomeController::class, 'paymentPending'])
+Route::get('/payment/pending/{reference}', [TransactionController::class, 'pending'])
     ->name('payment.pending');
 
-Route::get('/payment/{transaction}/back', [TransactionController::class, 'back'])
-    ->name('payment.back');
+Route::get('/payment/status/{reference}', [TransactionController::class, 'status'])
+    ->name('payment.status');
 
-Route::get('/payment/failed/{reference}', [HomeController::class, 'paymentFailed'])
+Route::get('/payment/success/{reference}', [TransactionController::class, 'success'])
+    ->name('payment.success');
+
+Route::get('/payment/failed/{reference}', [TransactionController::class, 'failed'])
     ->name('payment.failed');
+
+Route::post('/midtrans/callback', [TransactionController::class, 'callback'])
+    ->name('midtrans.callback');
+
 /*
 |--------------------------------------------------------------------------
 | BERITA & KEGIATAN
@@ -161,6 +167,11 @@ Route::prefix('admin')
             ->name('program.show');
 
         Route::resource('beritadankegiatan', BeritaDanKegiatanController::class);
+        Route::delete(
+            'beritadankegiatan/foto/{id}',
+            [BeritaDanKegiatanController::class, 'destroyFoto']
+        )->name('beritadankegiatan.foto.destroy');
+
 
         Route::get('/account', [AdminController::class, 'account'])->name('account');
         Route::post('/account', [AdminController::class, 'storeAccount'])->name('account.store');
@@ -245,7 +256,7 @@ Route::prefix('finance')
             ->name('pengeluaran.update');
         Route::delete('/pengeluaran/{id}', [PengeluaranController::class, 'destroy'])
             ->name('pengeluaran.destroy');
-            
+
         Route::resource('alokasidonasi', AlokasiDonasiController::class)
             ->except(['create', 'edit']);
 

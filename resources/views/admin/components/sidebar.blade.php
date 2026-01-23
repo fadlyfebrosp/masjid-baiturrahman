@@ -5,8 +5,8 @@
         type="button"
         @click="$dispatch('close-sidebar')"
         class="absolute top-3 right-3 w-8 h-8
-            flex items-center justify-center
-            rounded-full hover:bg-green-600 lg:hidden"
+               flex items-center justify-center
+               rounded-full hover:bg-green-600 lg:hidden"
     >
         <i class="bi bi-x-lg text-lg"></i>
     </button>
@@ -30,6 +30,7 @@
 
     <!-- MENU -->
     <nav class="flex-1 mt-4 space-y-1 overflow-y-auto no-scrollbar">
+
         @php
             $menus = [
                 ['route'=>'admin.dashboard','icon'=>'speedometer2','label'=>'Dashboard'],
@@ -40,8 +41,11 @@
                 ['route'=>'admin.donasioffline.index','icon'=>'cash-stack','label'=>'Donasi Offline'],
                 ['route'=>'admin.activitylog','icon'=>'clipboard-data','label'=>'Log Aktivitas'],
             ];
+
+            $isSettingActive = request()->routeIs('admin.pengaturan.*');
         @endphp
 
+        <!-- MENU UTAMA -->
         @foreach($menus as $menu)
             <a
                 href="{{ route($menu['route']) }}"
@@ -55,6 +59,46 @@
                 <span class="ml-3">{{ $menu['label'] }}</span>
             </a>
         @endforeach
+
+        <!-- SETTING MENU -->
+        <div x-data="{ open: {{ $isSettingActive ? 'true' : 'false' }} }" class="mt-2">
+            <button
+                @click="open = !open"
+                class="w-full flex items-center px-6 py-3 transition
+                {{ $isSettingActive ? 'bg-green-800' : 'hover:bg-green-600' }}"
+            >
+                <i class="bi bi-gear-fill text-lg"></i>
+                <span class="ml-3 flex-1 text-left">Pengaturan</span>
+                <i class="bi" :class="open ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+            </button>
+
+            <div x-show="open" x-transition class="ml-10 mt-1 space-y-1">
+                <!-- GENERAL -->
+                <a
+                    href="{{ route('admin.pengaturan.general') }}"
+                    class="block px-4 py-2 rounded transition
+                    {{ request()->routeIs('admin.pengaturan.general*')
+                        ? 'bg-green-800'
+                        : 'hover:bg-green-600'
+                    }}"
+                >
+                    General
+                </a>
+
+                <!-- MIDTRANS -->
+                <a
+                    href="{{ route('admin.pengaturan.midtrans') }}"
+                    class="block px-4 py-2 rounded transition
+                    {{ request()->routeIs('admin.pengaturan.midtrans*')
+                        ? 'bg-green-800'
+                        : 'hover:bg-green-600'
+                    }}"
+                >
+                    Midtrans
+                </a>
+            </div>
+        </div>
+
     </nav>
 
     <!-- LOGOUT -->

@@ -13,11 +13,15 @@ class Transaction extends Model
         'donasi_id',
         'reference',
         'payment_method',
-        'payment_code',
-        'pay_url',
+        'payment_type',
+        'payment_channel',
         'amount',
         'status',
-        'paid_at'
+        'paid_at',
+    ];
+
+    protected $casts = [
+        'paid_at' => 'datetime',
     ];
 
     // Relasi ke Donasi

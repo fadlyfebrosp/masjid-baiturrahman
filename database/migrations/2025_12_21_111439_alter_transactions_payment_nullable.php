@@ -5,29 +5,24 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    public function up()
+    public function up(): void
     {
         Schema::table('transactions', function (Blueprint $table) {
 
-            // kolom SUDAH ADA → change
+            // Semua kolom SUDAH ADA → gunakan change()
             $table->string('payment_method')->nullable()->change();
-
-            // kolom BELUM ADA → add
-            $table->string('payment_type')->nullable()->after('payment_method');
-            $table->string('payment_channel')->nullable()->after('payment_type');
+            $table->string('payment_type')->nullable()->change();
+            $table->string('payment_channel')->nullable()->change();
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::table('transactions', function (Blueprint $table) {
 
             $table->string('payment_method')->nullable(false)->change();
-
-            $table->dropColumn([
-                'payment_type',
-                'payment_channel',
-            ]);
+            $table->string('payment_type')->nullable(false)->change();
+            $table->string('payment_channel')->nullable(false)->change();
         });
     }
 };

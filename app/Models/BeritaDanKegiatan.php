@@ -17,6 +17,13 @@ class BeritaDanKegiatan extends Model
         'tanggal',
         'kategori',
         'deskripsi',
-        'foto'
     ];
+
+    public function fotos()
+    {
+        return $this->hasMany(
+            BeritaFoto::class,
+            'berita_dan_kegiatan_id'
+        );
+    }
 }
