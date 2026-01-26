@@ -23,11 +23,13 @@
         @forelse ($data as $item)
           <div class="snap-center flex-shrink-0 w-[104%] sm:w-[49%] lg:w-[33%] bg-white border border-green-400 rounded-2xl shadow hover:shadow-md transition overflow-hidden item-card" data-category="{{ $item->kategori }}">
             <div class="relative group">
-              @if ($item->foto)
-                <img src="{{ asset('storage/' . $item->foto) }}" alt="{{ $item->judul }}" class="w-full h-52 object-cover transition-transform duration-500 group-hover:scale-105">
-              @else
-                <img src="{{ asset('build/assets/masjid.jpeg') }}" alt="default" class="w-full h-52 object-cover transition-transform duration-500 group-hover:scale-105">
-              @endif
+                @php $foto = $item->fotos->first(); @endphp
+
+                <img
+                    src="{{ $foto ? asset('storage/'.$foto->path) : 'https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png' }}"
+                    alt="{{ $item->judul }}"
+                    class="w-full h-52 object-contain bg-gray-100 transition-transform duration-500 group-hover:scale-105"
+                />
               <span class="absolute top-2 left-2 bg-green-600 text-white text-xs px-3 py-1 rounded-md uppercase tracking-wide">{{ $item->kategori }}</span>
             </div>
             <div class="p-4 text-left">

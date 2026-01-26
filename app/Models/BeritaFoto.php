@@ -9,13 +9,18 @@ class BeritaFoto extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     protected $fillable = [
         'berita_dan_kegiatan_id',
-        'path'
+        'path',
     ];
 
     public function berita()
     {
-        return $this->belongsTo(BeritaDanKegiatan::class);
+        return $this->belongsTo(
+            \App\Models\BeritaDanKegiatan::class,
+            'berita_dan_kegiatan_id'
+        );
     }
 }

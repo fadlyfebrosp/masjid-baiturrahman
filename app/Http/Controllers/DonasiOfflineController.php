@@ -34,7 +34,7 @@ class DonasiOfflineController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-       $totalDiterima = DonasiOffline::where('status', 'SELESAI')
+    $totalDiterima = DonasiOffline::where('status', 'SELESAI')
             ->sum('nominal');
 
         // TOTAL UANG DONASI PROSES + PENDING

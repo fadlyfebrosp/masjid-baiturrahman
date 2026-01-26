@@ -159,7 +159,9 @@ class BeritaDanKegiatanController extends Controller
      * ========================= */
     public function showPublic()
     {
-        $data = BeritaDanKegiatan::with('fotos')->latest()->paginate(9);
+        $data = BeritaDanKegiatan::with('fotos')
+            ->orderBy('tanggal', 'desc')
+            ->paginate(9);
         $logo = $this->getLogo();
 
         return view('pages.berita', compact('data', 'logo'));

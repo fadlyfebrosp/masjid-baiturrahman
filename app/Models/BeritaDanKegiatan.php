@@ -11,6 +11,8 @@ class BeritaDanKegiatan extends Model
 
     protected $table = 'beritadankegiatan';
 
+    public $timestamps = false;
+
     protected $fillable = [
         'judul',
         'namamasjid',
@@ -22,7 +24,7 @@ class BeritaDanKegiatan extends Model
     public function fotos()
     {
         return $this->hasMany(
-            BeritaFoto::class,
+            \App\Models\BeritaFoto::class,
             'berita_dan_kegiatan_id'
         );
     }

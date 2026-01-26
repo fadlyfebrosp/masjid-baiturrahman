@@ -91,6 +91,10 @@ Route::get(
     '/payment/core/{reference}',
     [TransactionController::class, 'core']
 )->name('payment.core');
+Route::get(
+    '/payment/back/{transaction}',
+    [TransactionController::class, 'back']
+)->name('payment.back');
 
 Route::get('/payment/pending/{reference}', [TransactionController::class, 'pending'])
     ->name('payment.pending');

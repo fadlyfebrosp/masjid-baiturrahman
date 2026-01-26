@@ -5,6 +5,7 @@ namespace Tests\Feature\Admin;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\BeritaDanKegiatan;
+use App\Models\BeritaFoto;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -19,20 +20,24 @@ class BeritaDanKegiatanTest extends TestCase
     {
         Storage::fake('public');
 
+        /** @var \App\Models\User $admin */
         $admin = User::factory()->create([
             'role' => 'admin',
         ]);
 
-        $response = $this
-            ->actingAs($admin)
-            ->post(route('admin.beritadankegiatan.store'), [
-                'judul'       => 'Kegiatan Gotong Royong',
-                'namamasjid'  => 'Masjid Al Ikhlas',
-                'tanggal'     => now()->toDateString(),
-                'kategori'    => 'Kegiatan',
-                'deskripsi'   => 'Kerja bakti membersihkan masjid',
-                'foto'        => UploadedFile::fake()->image('kegiatan.jpg'),
-            ]);
+        $this->actingAs($admin);
+
+        $response = $this->post(route('admin.beritadankegiatan.store'), [
+            'judul'      => 'Kegiatan Gotong Royong',
+            'namamasjid' => 'Masjid Al Ikhlas',
+            'tanggal'    => now()->toDateString(),
+            'kategori'   => 'Kegiatan',
+            'deskripsi'  => 'Kerja bakti membersihkan masjid',
+            'foto'       => [
+                UploadedFile::fake()->image('kegiatan1.jpg'),
+                UploadedFile::fake()->image('kegiatan2.jpg'),
+            ],
+        ]);
 
         $response
             ->assertRedirect()
@@ -44,8 +49,13 @@ class BeritaDanKegiatanTest extends TestCase
             'kategori'   => 'Kegiatan',
         ]);
 
-        $data = BeritaDanKegiatan::firstOrFail();
-        Storage::disk('public')->assertExists($data->foto);
+        $berita = BeritaDanKegiatan::firstOrFail();
+
+        $this->assertDatabaseCount('berita_fotos', 2);
+
+        $this->assertDatabaseHas('berita_fotos', [
+            'berita_dan_kegiatan_id' => $berita->id,
+        ]);
     }
 
     #[Test]
@@ -53,30 +63,38 @@ class BeritaDanKegiatanTest extends TestCase
     {
         Storage::fake('public');
 
+        /** @var \App\Models\User $admin */
         $admin = User::factory()->create([
             'role' => 'admin',
         ]);
 
-        $data = BeritaDanKegiatan::create([
+        $berita = BeritaDanKegiatan::create([
             'judul'      => 'Judul Lama',
             'namamasjid' => 'Masjid Lama',
             'tanggal'    => now()->toDateString(),
             'kategori'   => 'Berita',
             'deskripsi'  => 'Deskripsi lama',
-            'foto'       => UploadedFile::fake()
+        ]);
+
+        BeritaFoto::create([
+            'berita_dan_kegiatan_id' => $berita->id,
+            'path' => UploadedFile::fake()
                 ->image('old.jpg')
-                ->store('berita-foto', 'public'),
+                ->store('berita', 'public'),
         ]);
 
         $response = $this
             ->actingAs($admin)
-            ->put(route('admin.beritadankegiatan.update', $data->id), [
+            ->put(route('admin.beritadankegiatan.update', $berita->id), [
                 'judul'      => 'Judul Baru',
                 'namamasjid' => 'Masjid Baru',
                 'tanggal'    => now()->toDateString(),
                 'kategori'   => 'Kegiatan',
                 'deskripsi'  => 'Deskripsi baru',
-                'foto'       => UploadedFile::fake()->image('new.jpg'),
+                'foto'       => [
+                    UploadedFile::fake()->image('new1.jpg'),
+                    UploadedFile::fake()->image('new2.jpg'),
+                ],
             ]);
 
         $response
@@ -84,11 +102,13 @@ class BeritaDanKegiatanTest extends TestCase
             ->assertSessionHas('success');
 
         $this->assertDatabaseHas('beritadankegiatan', [
-            'id'         => $data->id,
+            'id'         => $berita->id,
             'judul'      => 'Judul Baru',
             'namamasjid' => 'Masjid Baru',
             'kategori'   => 'Kegiatan',
         ]);
+
+        $this->assertDatabaseCount('berita_fotos', 3);
     }
 
     #[Test]
@@ -96,37 +116,49 @@ class BeritaDanKegiatanTest extends TestCase
     {
         Storage::fake('public');
 
+        /** @var \App\Models\User $admin */
         $admin = User::factory()->create([
             'role' => 'admin',
         ]);
 
-        $data = BeritaDanKegiatan::create([
+        $berita = BeritaDanKegiatan::create([
             'judul'      => 'Berita Hapus',
             'namamasjid' => 'Masjid Test',
             'tanggal'    => now()->toDateString(),
             'kategori'   => 'Berita',
             'deskripsi'  => 'Akan dihapus',
-            'foto'       => UploadedFile::fake()
-                ->image('hapus.jpg')
-                ->store('berita-foto', 'public'),
+        ]);
+
+        $foto = UploadedFile::fake()
+            ->image('hapus.jpg')
+            ->store('berita', 'public');
+
+        BeritaFoto::create([
+            'berita_dan_kegiatan_id' => $berita->id,
+            'path' => $foto,
         ]);
 
         $response = $this
             ->actingAs($admin)
-            ->delete(route('admin.beritadankegiatan.destroy', $data->id));
+            ->delete(route('admin.beritadankegiatan.destroy', $berita->id));
 
         $response
             ->assertRedirect()
             ->assertSessionHas('success');
 
         $this->assertDatabaseMissing('beritadankegiatan', [
-            'id' => $data->id,
+            'id' => $berita->id,
+        ]);
+
+        $this->assertDatabaseMissing('berita_fotos', [
+            'berita_dan_kegiatan_id' => $berita->id,
         ]);
     }
 
     #[Test]
     public function non_admin_cannot_create_berita_dan_kegiatan()
     {
+        /** @var \App\Models\User $user */
         $user = User::factory()->create([
             'role' => 'jamaah',
         ]);
@@ -145,6 +177,7 @@ class BeritaDanKegiatanTest extends TestCase
     #[Test]
     public function create_fails_when_required_fields_missing()
     {
+        /** @var \App\Models\User $admin */
         $admin = User::factory()->create([
             'role' => 'admin',
         ]);
@@ -160,7 +193,6 @@ class BeritaDanKegiatanTest extends TestCase
                 'namamasjid',
                 'tanggal',
                 'kategori',
-                'deskripsi',
             ]);
     }
 }
